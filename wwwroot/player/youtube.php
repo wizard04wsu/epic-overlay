@@ -1,20 +1,18 @@
-<!DOCTYPE html>
 <?php
 /*error_reporting(E_ALL);
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 */
-
+header("Cache-Control: no-store, no-cache, max-age=0");
+header("Expires: -1");
+?><!DOCTYPE html>
+<?php
 //declare variables (just for my sanity)
 $errMsg = '';
-$instance = null;
-$dbPath = '';
-$db = null;
-$cmd = null;
+$instance;
+$dbPath; $db; $cmd; $sql; $rst;
 $_;	//placeholder variable (need a variable to pass to $cmd->Execute(), but I don't care what gets put into it)
-$sql = '';
-$rst = null;
-$settings = [];
+$settingsJson;
 
 
 if(empty($_GET['instance']) || !intval($_GET['instance'])){
@@ -46,26 +44,15 @@ else{
 			$errMsg = 'Specified instance does not use this template.';
 		}
 		else{
-
-			$sql = "SELECT Key, [Value] FROM Setting WHERE Instance = $instance";
-
-			$rst = $db->Execute($sql);
-
-			while(!$rst->EOF){
-				$settings[$rst['Key']->Value] = $rst['Value']->Value;
-				
-				$rst->MoveNext();
-			}
-			
-			$rst->Close();
-			$db->Close();
-			
+			$settingsJson = $rst['Settings'];
 		}
+		
+		$rst->Close();
+		$db->Close();
 		
 	}
 	
 }
-	
 ?>
 <html>
 <head>
@@ -88,7 +75,8 @@ else{
 	
 	<script type="text/javascript">
 		
-		var settings = <?php echo json_encode($settings); ?>;
+		var settings = <?php echo $settingsJson; ?>;
+		if(settings.listType == "video_list") settings.listType = "playlist";
 		
 		function initPlayer(){
 			
@@ -217,13 +205,16 @@ else{
 </head>
 <body>
 <?php
-	if($errMsg){
-		echo $errMsg;
-	}
-	else{
-?>	<!-- The <iframe> with the video player will replace this <div>. -->
+if($errMsg){
+	echo $errMsg;
+}
+else{
+?>
+	<!-- The <iframe> with the video player will replace this <div>. -->
 	<div id="ytplayer"></div>
 	<script type="text/javascript">initPlayer();</script>
-	
-<?php } ?></body>
+<?php
+}
+?>
+</body>
 </html>

@@ -1,8 +1,16 @@
 <?php
+/*error_reporting(E_ALL);
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+*/
+header("Cache-Control: no-store, no-cache, max-age=0");
+header("Expires: -1");
+?><!DOCTYPE html>
+<?php
 //declare variables (just for my sanity)
 $errMsg = '';
 $dbPath; $db; $sql; $rst;
-$settings; $key; $value;
+$settingsArr; $key; $value;
 
 
 //connect to the database
@@ -15,8 +23,7 @@ else{
 	$db->Open("Provider=Microsoft.ACE.OLEDB.12.0; Data Source=$dbPath");
 }
 	
-?><!DOCTYPE html>
-
+?>
 <html>
 <head>
 	
@@ -43,7 +50,12 @@ else{
 	
 </head>
 <body>
-	
+<?php
+	if($errMsg){
+		echo $errMsg;
+	}
+	else{
+?>
 	<h1>OBS Overlays Configuration</h1>
 	
 	<fieldset>
@@ -52,12 +64,12 @@ else{
 			<thead><tr><th>Title</th><th>Path</th></tr></thead>
 			<tbody>
 <?php
-	$sql = "SELECT Title, Path FROM Template ORDER BY Title";
-	$rst = $db->Execute($sql);
-	while(!$rst->EOF){
-		echo '<tr><td>' . $rst['Title']->Value . '</td><td>' . $rst['Path']->Value . '</td></tr>';
-		$rst->MoveNext();
-	}
+		$sql = "SELECT Title, Path FROM Template ORDER BY Title";
+		$rst = $db->Execute($sql);
+		while(!$rst->EOF){
+			echo '<tr><td>' . $rst['Title']->Value . '</td><td>' . $rst['Path']->Value . '</td></tr>\n';
+			$rst->MoveNext();
+		}
 ?>
 		</tbody></table>
 	</fieldset>
@@ -68,12 +80,12 @@ else{
 			<thead><tr><th>ID</th><th>Title</th><th>Template</th><th>Link</th></tr></thead>
 			<tbody>
 <?php
-	$sql = "SELECT Instance.ID, Instance.Title, Template.Title AS Template, Template.Path FROM Instance INNER JOIN Template ON Instance.Template = Template.ID ORDER BY Instance.Title, Template.Title";
-	$rst = $db->Execute($sql);
-	while(!$rst->EOF){
-		echo '<tr><td>' . $rst['ID']->Value . '</td><td>' . $rst['Title']->Value . '</td><td>' . $rst['Template']->Value . '</td><td><a href="' . $rst['Path']->Value.'?instance='.$rst['ID'] . '" target="_blank">Open</a></td></tr>';
-		$rst->MoveNext();
-	}
+		$sql = "SELECT Instance.ID, Instance.Title, Template.Title AS Template, Template.Path FROM Instance INNER JOIN Template ON Instance.Template = Template.ID ORDER BY Instance.Title, Template.Title";
+		$rst = $db->Execute($sql);
+		while(!$rst->EOF){
+			echo '<tr><td>' . $rst['ID']->Value . '</td><td>' . $rst['Title']->Value . '</td><td>' . $rst['Template']->Value . '</td><td><a href="' . $rst['Path']->Value.'?instance='.$rst['ID'] . '" target="_blank">Open</a></td></tr>\n';
+			$rst->MoveNext();
+		}
 ?>
 		</tbody></table>
 	</fieldset>
@@ -84,23 +96,23 @@ else{
 			<thead><tr><th>Instance ID</th><th>Key</th><th>Value</th></tr></thead>
 			<tbody>
 <?php
-	$sql = "SELECT ID, Title, Settings FROM Instance ORDER BY Title";
-	$rst = $db->Execute($sql);
-	while(!$rst->EOF){
-		$settings = json_decode($rst['Settings'], true);
-		ksort($settings);	//sort alphabetically by key
-		foreach($settings as $key => $value){
-			echo '<tr><td>' . $rst['ID']->Value . '</td><td>' . $key . '</td><td>' . $value . '</td></tr>\n';
+		$sql = "SELECT ID, Title, Settings FROM Instance ORDER BY Title";
+		$rst = $db->Execute($sql);
+		while(!$rst->EOF){
+			$settingsArr = json_decode($rst['Settings'], true);
+			ksort($settingsArr);	//sort alphabetically by key
+			foreach($settingsArr as $key => $value){
+				echo '<tr><td>' . $rst['ID']->Value . '</td><td>' . $key . '</td><td>' . $value . '</td></tr>\n';
+			}
+			$rst->MoveNext();
 		}
-		$rst->MoveNext();
-	}
 ?>
 		</tbody></table>
 	</fieldset>
-	
+<?php
+		$rst->Close();
+		$db->Close();
+	}
+?>
 </body>
 </html>
-<?php
-	$rst->Close();
-	$db->Close();
-?>
