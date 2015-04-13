@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <?php
 /*error_reporting(E_ALL);
 ini_set('display_errors', 1);
@@ -46,7 +47,7 @@ else{
 		}
 		else{
 
-			$sql = "SELECT Option.Key, Setting.Value FROM Setting INNER JOIN [Option] ON Setting.Option = Option.ID WHERE Instance = $instance";
+			$sql = "SELECT Key, [Value] FROM Setting WHERE Instance = $instance";
 
 			$rst = $db->Execute($sql);
 
@@ -65,8 +66,7 @@ else{
 	
 }
 	
-?><!DOCTYPE html>
-
+?>
 <html>
 <head>
 	

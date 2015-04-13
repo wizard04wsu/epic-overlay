@@ -1,10 +1,8 @@
 <?php
 //declare variables (just for my sanity)
 $errMsg = '';
-$dbPath = '';
-$db = null;
-$sql = '';
-$rst = null;
+$dbPath; $db; $sql; $rst;
+$settings; $key; $value;
 
 
 //connect to the database
@@ -42,8 +40,6 @@ else{
 			padding: 0.25em 0.5em;
 		}
 	</style>
-	
-	<script type="text/javascript" src="script/jquery-1.11.2.min.js"></script>
 	
 </head>
 <body>
@@ -88,10 +84,14 @@ else{
 			<thead><tr><th>Instance ID</th><th>Key</th><th>Value</th></tr></thead>
 			<tbody>
 <?php
-	$sql = "SELECT Instance, Title, Key, [Value] FROM [All Settings] ORDER BY Instance, Key";
+	$sql = "SELECT ID, Title, Settings FROM Instance ORDER BY Title";
 	$rst = $db->Execute($sql);
 	while(!$rst->EOF){
-		echo '<tr><td>' . $rst['Instance']->Value . '</td><td>' . $rst['Key']->Value . '</td><td>' . $rst['Value']->Value . '</td></tr>';
+		$settings = json_decode($rst['Settings'], true);
+		ksort($settings);	//sort alphabetically by key
+		foreach($settings as $key => $value){
+			echo '<tr><td>' . $rst['ID']->Value . '</td><td>' . $key . '</td><td>' . $value . '</td></tr>\n';
+		}
 		$rst->MoveNext();
 	}
 ?>
