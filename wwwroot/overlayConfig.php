@@ -33,19 +33,18 @@ else{
 	<style type="text/css" media="all">
 		fieldset {
 			margin-bottom: 1.5em;
+			padding:1em 1.5em 1.5em;
 		}
-		table {
-			border-collapse: collapse;
-			border: 1px solid #AAA;
+		fieldset p:first-of-type {
+			margin-top:0;
 		}
-		th {
-			border-bottom: 1px solid #AAA;
-		}
-		th, td {
-			text-align: left;
-			padding: 0.25em 0.5em;
+		fieldset p:last-of-type {
+			margin-bottom:0;
 		}
 		
+		select {
+			width:100%;
+		}
 		select, optgroup, option {
 			font-family:"Courier New",Courier,monospace;
 			font-style:normal;
@@ -56,6 +55,11 @@ else{
 		optgroup {
 			font-weight:bold;
 			text-decoration:underline;
+		}
+		
+		iframe {
+			width:100%;
+			border:0;
 		}
 	</style>
 	
@@ -71,57 +75,94 @@ else{
 ?>
 	<h1>OBS Overlays Configuration</h1>
 	
+	<div style="display:inline-block;">
+	
 	<fieldset>
 		<legend>Templates</legend>
+		<p>
 		<select id="templates" class="multiColumnSelect" size="10">
 			<optgroup label="Title;Path"></optgroup>
 <?php
-		$sql = "SELECT ID, Title, Path FROM Template ORDER BY Title";
+		$sql = "SELECT ID, Title, Path, Config FROM Template ORDER BY Title";
 		$rst = $db->Execute($sql);
 		while(!$rst->EOF){
 			echo '<option id="'.$rst['ID'].'" '.($rst->AbsolutePosition == 1 ? 'selected' : '').'>' . $rst['Title'].';'.$rst['Path'] . '</option>\n';
 			$rst->MoveNext();
 		}
+		$rst->MoveFirst();
 ?>
 		</select>
+		</p>
+		<fieldset>
+			<p style="line-height:1.75em;">
+			<label>Title <input type="text" id="templateTitle" value="<?php echo $rst['Title']; ?>"></label><br>
+			<label>Path to template <input type="text" id="templatePath" value="<?php echo $rst['Path']; ?>"></label><br>
+			<label>Path to template configuration <input type="text" id="templatConfig" value="<?php echo $rst['Config']; ?>"></label>
+			</p>
+			<p>
+			<input type="button" id="templateSave" value="Save">
+			</p>
+		</fieldset>
+		<p>
+		<input type="button" id="templateRegister" value="Register a new template">
+		</p>
 	</fieldset>
 	
 	<fieldset>
 		<legend>Instances</legend>
+		<p>
 		<select id="instances" class="multiColumnSelect" size="10">
 			<optgroup label="Title;Template"></optgroup>
 <?php
-		$sql = "SELECT Instance.ID, Instance.Title, Template.Title AS Template FROM Instance INNER JOIN Template ON Instance.Template = Template.ID ORDER BY Instance.Title, Template.Title";
+		$sql = "SELECT Instance.ID, Instance.Title, Template.Title AS Template, Template.Path, Template.Config FROM Instance INNER JOIN Template ON Instance.Template = Template.ID ORDER BY Instance.Title, Template.Title";
 		$rst = $db->Execute($sql);
 		while(!$rst->EOF){
-			echo '<option value="'.$rst['ID'].'">' . $rst['Title'].';'.$rst['Template'] . '</option>\n';
+			echo '<option value="'.$rst['ID'].'" '.($rst->AbsolutePosition == 1 ? 'selected' : '').'>' . $rst['Title'].';'.$rst['Template'] . '</option>\n';
 			$rst->MoveNext();
 		}
+		$rst->MoveFirst();
 ?>
 		</select>
+		</p>
+		<p>
+		<a id="instanceLink" href="<?php echo $rst['Path'].'?instance='.$rst['ID']; ?>" target="_blank">Open instance in new window</a>
+		</p>
+		<fieldset>
+			<iframe id="settings" src="<?php echo $rst['Config'].'?instance='.$rst['ID']; ?>"></iframe>
+		</fieldset>
+		<p>
+		<input type="button" id="instanceCreate" value="Create a new instance">
+		</p>
 	</fieldset>
 	
-	<fieldset>
-		<legend>Settings</legend>
-		<select id="settings" class="multiColumnSelect" size="10">
-			<optgroup label="Key;Value"></optgroup>
-<?php
-		$sql = "SELECT ID, Title, Settings FROM Instance ORDER BY Title";
-		$rst = $db->Execute($sql);
-		while(!$rst->EOF){
-			$settingsArr = json_decode($rst['Settings'], true);
-			ksort($settingsArr);	//sort alphabetically by key
-			foreach($settingsArr as $key => $value){
-				echo '<option id="'.$rst['ID'].'">' . $key.';'.$value . '</option>\n';
-			}
-			$rst->MoveNext();
-		}
-?>
-		</select>
-	</fieldset>
+	</div>
 	
 	<script type="text/javascript">
+		var sel_templates = document.getElementById("templates"),
+			templateTitle = document.getElementById("templateTitle"),
+			templatePath = document.getElementById("templatePath"),
+			templateConfig = document.getElementById("templateConfig"),
+			templateSave = document.getElementById("templateSave"),
+			templateRegister = document.getElementById("templateRegister"),
+			sel_instances = document.getElementById("instances"),
+			instanceLink = document.getElementById("instanceLink"),
+			settings = document.getElementById("settings");
+		
 		multiColumnSelect(";", "\u00a0\u00a0\u00a0\u00a0");
+		
+		sel_templates.addEventListener("change", templateChange, false);
+		
+		sel_instances.addEventListener("change", instanceChange, false);
+		
+		function templateChange(){
+			var templateID = sel_templates.value;
+			
+			
+		}
+		
+		function instanceChange(){
+			//
+		}
 	</script>
 <?php
 		$rst->Close();
