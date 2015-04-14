@@ -89,7 +89,7 @@ else{
 		
 		if(settings.listType == "video_list"){
 			settings.listType = "playlist";
-			settings.list = settings.list.split(",");
+			//settings.list = settings.list.split(",");
 		}
 		
 		function initPlayer(){

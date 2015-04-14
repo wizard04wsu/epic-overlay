@@ -78,7 +78,7 @@ if($errMsg){
 else{
 	$listType = $settingsArr['listType'];
 	$listLabels = array('playlist'=>'Playlist ID', 'video_list'=>'Video IDs (comma-separated)', 'user_uploads'=>'User Name', 'search'=>'Search Query');
-	$listPatterns = array('playlist'=>"[0-9a-zA-Z-]+", 'video_list'=>"[0-9a-zA-Z-]+(,\s*[0-9a-zA-Z-]+)*", 'user_uploads'=>"[0-9a-zA-Z_'-]*(\.[0-9a-zA-Z_'-]+)*\.?", 'search'=>"");
+	$listPatterns = array('playlist'=>" *[0-9a-zA-Z_-]+ *", 'video_list'=>" *[0-9a-zA-Z_-]+(, *[0-9a-zA-Z_-]+)* *", 'user_uploads'=>" *[0-9a-zA-Z_'-]*(\.[0-9a-zA-Z_'-]+)*\.? *", 'search'=>"");
 ?>
 	<p>
 	<label>List Type <select id="listType">
@@ -90,7 +90,7 @@ else{
 	</p>
 	
 	<p>
-	<label><span id="listLabel"><?php echo $listLabels[$listType]; ?></span> <input type="text" id="list" pattern="<?php echo $listPatterns[$listType]; ?>" value="<?php echo $settingsArr['list']; ?>"></label>
+	<label><span id="listLabel"><?php echo $listLabels[$listType]; ?></span> <input type="text" id="list" <?php echo $listPatterns[$listType] ? 'pattern="'.$listPatterns[$listType].'"' : ''?> value="<?php echo $settingsArr['list']; ?>"></label>
 	</p>
 	
 	<p>
@@ -106,32 +106,25 @@ else{
 	<input type="submit" id="save" value="Save" disabled> <input type="button" id="cancel" value="Cancel">
 	</p>
 	
-	<form id="saveChanges" action="/set.php" method="post">
-		<input type="hidden" name="instance" value="<?php echo $instance; ?>">
-		<input type="hidden" id="settings" name="settings" value="">
-	</form>
-	
 	<script type="text/javascript">
-		var i_listType, i_list, i_shuffle, i_loop, i_volume, btn_save, btn_cancel, form, i_settings,
+		var i_listType, i_list, i_shuffle, i_loop, i_volume, btn_save, btn_cancel,
 			listType = settings.listType,
 			listValue = { playlist:"", video_list:"", user_uploads:"", search:"" },
 			listLabels = { playlist:"Playlist ID", video_list:"Video IDs (comma-separated)", user_uploads:"User Name", search:"Search Query" },
 			listLabel = document.getElementById("listLabel"),
-			listPatterns = { playlist:"\s*[0-9a-zA-Z-]+\s*", video_list:"\s*[0-9a-zA-Z-]+(,\s*[0-9a-zA-Z-]+)*\s*", user_uploads:"\s*[0-9a-zA-Z_'-]*(\.[0-9a-zA-Z_'-]+)*\.?\s*", search:"" };
+			listPatterns = { playlist:" *[0-9a-zA-Z_-]+ *", video_list:" *[0-9a-zA-Z_-]+(, *[0-9a-zA-Z_-]+)* *", user_uploads:" *[0-9a-zA-Z_'-]*(\.[0-9a-zA-Z_'-]+)*\.? *", search:"" };
 		
 		listValue[listType] = settings.list;
 		
 		(i_listType = document.getElementById("listType")).addEventListener("change", listTypeChange, false);
-		(i_list = document.getElementById("list")).addEventListener("change", updateSaveBtn, false);
+		(i_list = document.getElementById("list")).addEventListener("input", updateSaveBtn, false);
+		i_list.addEventListener("change", updateSaveBtn, false);	//for IE
 		(i_shuffle = document.getElementById("shuffle")).addEventListener("change", updateSaveBtn, false);
 		(i_loop = document.getElementById("loop")).addEventListener("change", updateSaveBtn, false);
 		(i_volume = document.getElementById("volume")).addEventListener("input", volumeChange, false);
 		i_volume.addEventListener("change", volumeChange, false);	//for IE
 		(btn_save = document.getElementById("save")).addEventListener("click", save, false);
-		btn_cancel = document.getElementById("cancel");
-		form = document.getElementById("saveChanges");
-		i_settings = document.getElementById("settings");
-		document.getElementById("cancel").addEventListener("click", cancel, false);
+		(btn_cancel = document.getElementById("cancel")).addEventListener("click", cancel, false);;
 		
 		function updateSaveBtn(){
 			
@@ -159,7 +152,12 @@ else{
 			//update #list input
 			listLabel.innerHTML = listLabels[listType];
 			i_list.value = listValue[listType];
-			i_list.pattern = listPatterns[listType];
+			if(listPatterns[listType]){
+				i_list.pattern = listPatterns[listType];
+			}
+			else{
+				i_list.removeAttribute("pattern");
+			}
 			
 			updateSaveBtn();
 		}
@@ -183,26 +181,12 @@ else{
 				newSettings.list = newSettings.list.replace(/\s+/g, "");
 			}
 			
-			i_settings.value = JSON.stringify(newSettings);
-			
 			//disable the form fields
 			btn_save.disabled = true;
 			i_listType.disabled = i_list.disabled = i_shuffle.disabled = i_loop.disabled = i_volume.disabled, btn_cancel.disabled = true;
 			//TODO: display some "waiting" indicator
 			
-			/*//doesn't work; page won't reload on a 205 status code (in Chrome, anyway)
-			form.submit();
-			*/
-			/*
-			//use jQuery to post the changes
-			$(form).submit(function(){
-				$.post($(this).attr('action'), $(this).serialize(), function(response){
-					//on success, reload the page
-					location.reload(true);
-				},'json');
-				return false;
-			});
-			*/
+			
 			//use jQuery to post the changes
 			$.ajax({
 				url: '/set.php',
