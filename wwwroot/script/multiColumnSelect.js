@@ -50,14 +50,16 @@ function multiColumnSelect(separator, columnGapStr){
 					//get the text of each column in this option
 					columnText = optionColumns[o];
 					
-					//for each column except the last
-					for(c=0; c<columnText.length-1; c++){
+					//for each column
+					for(c=0; c<columnText.length; c++){
 						//add required padding to the text in this column
 						if(columnText[c].length < maxLen[c]){
 							columnText[c] += Array(maxLen[c] - columnText[c].length + 1).join("\u00a0");
 						}
-						//add columnGapStr to this column
-						columnText[c] += columnGapStr;
+						if(c < columnText.length-1){	//not the last column
+							//add columnGapStr to this column
+							columnText[c] += columnGapStr;
+						}
 					}
 					
 					//update the text of the option

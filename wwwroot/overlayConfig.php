@@ -46,9 +46,11 @@ else{
 			padding: 0.25em 0.5em;
 		}
 		
-		optgroup, option {
-			font-family:Consolas,Menlo,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New,monospace;
+		select, optgroup, option {
+			font-family:"Courier New",Courier,monospace;
 			font-style:normal;
+		}
+		optgroup, option {
 			padding-left:3px;
 		}
 		optgroup {
@@ -77,7 +79,7 @@ else{
 		$sql = "SELECT ID, Title, Path FROM Template ORDER BY Title";
 		$rst = $db->Execute($sql);
 		while(!$rst->EOF){
-			echo '<option id="'.$rst['ID'].'">' . $rst['Title'].';'.$rst['Path'] . '</option>\n';
+			echo '<option id="'.$rst['ID'].'" '.($rst->AbsolutePosition == 1 ? 'selected' : '').'>' . $rst['Title'].';'.$rst['Path'] . '</option>\n';
 			$rst->MoveNext();
 		}
 ?>
