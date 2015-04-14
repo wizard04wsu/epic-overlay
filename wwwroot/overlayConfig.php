@@ -1,8 +1,7 @@
 <?php
-/*error_reporting(E_ALL);
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-*/
+error_reporting(E_ALL);
+//ini_set('display_errors', 0);
+
 header("Cache-Control: no-store, no-cache, max-age=0");
 header("Expires: -1");
 ?><!DOCTYPE html>
@@ -67,7 +66,7 @@ else{
 		$sql = "SELECT Title, Path FROM Template ORDER BY Title";
 		$rst = $db->Execute($sql);
 		while(!$rst->EOF){
-			echo '<tr><td>' . $rst['Title']->Value . '</td><td>' . $rst['Path']->Value . '</td></tr>\n';
+			echo '<tr><td>' . $rst['Title'] . '</td><td>' . $rst['Path'] . '</td></tr>\n';
 			$rst->MoveNext();
 		}
 ?>
@@ -83,7 +82,7 @@ else{
 		$sql = "SELECT Instance.ID, Instance.Title, Template.Title AS Template, Template.Path FROM Instance INNER JOIN Template ON Instance.Template = Template.ID ORDER BY Instance.Title, Template.Title";
 		$rst = $db->Execute($sql);
 		while(!$rst->EOF){
-			echo '<tr><td>' . $rst['ID']->Value . '</td><td>' . $rst['Title']->Value . '</td><td>' . $rst['Template']->Value . '</td><td><a href="' . $rst['Path']->Value.'?instance='.$rst['ID'] . '" target="_blank">Open</a></td></tr>\n';
+			echo '<tr><td>' . $rst['ID'] . '</td><td>' . $rst['Title'] . '</td><td>' . $rst['Template'] . '</td><td><a href="'.$rst['Path'].'?instance='.$rst['ID'].'" target="_blank">Open</a></td></tr>\n';
 			$rst->MoveNext();
 		}
 ?>
@@ -102,7 +101,7 @@ else{
 			$settingsArr = json_decode($rst['Settings'], true);
 			ksort($settingsArr);	//sort alphabetically by key
 			foreach($settingsArr as $key => $value){
-				echo '<tr><td>' . $rst['ID']->Value . '</td><td>' . $key . '</td><td>' . $value . '</td></tr>\n';
+				echo '<tr><td>' . $rst['ID'] . '</td><td>' . $key . '</td><td>' . $value . '</td></tr>\n';
 			}
 			$rst->MoveNext();
 		}
