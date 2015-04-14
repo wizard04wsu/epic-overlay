@@ -31,6 +31,11 @@ else{
 	<title>Epic Stream Man's OBS Overlays Configuration</title>
 	
 	<style type="text/css" media="all">
+		#container {
+			display:inline-block;
+			min-width:500px;
+		}
+		
 		fieldset {
 			margin-bottom: 1.5em;
 			padding:1em 1.5em 1.5em;
@@ -40,6 +45,25 @@ else{
 		}
 		fieldset p:last-of-type {
 			margin-bottom:0;
+		}
+		
+		div.fillWidth {
+			display:table;
+			width:100%;
+		}
+		div.fillWidth > div {
+			display:table-row;
+		}
+		div.fillWidth > div > div {
+			display:table-cell;
+			padding:0.25em 0;
+		}
+		div.fillWidth label {
+			white-space:nowrap;
+			padding-right:0.5em;
+		}
+		div.fillWidth > div > div:last-child {
+			width:100%;
 		}
 		
 		select {
@@ -75,7 +99,7 @@ else{
 ?>
 	<h1>OBS Overlays Configuration</h1>
 	
-	<div style="display:inline-block;">
+	<div id="container">
 	
 	<fieldset>
 		<legend>Templates</legend>
@@ -94,12 +118,21 @@ else{
 		</select>
 		</p>
 		<fieldset>
-			<p style="line-height:1.75em;">
-			<label>Title <input type="text" id="templateTitle" value="<?php echo $rst['Title']; ?>"></label><br>
-			<label>Path to template <input type="text" id="templatePath" value="<?php echo $rst['Path']; ?>"></label><br>
-			<label>Path to template configuration <input type="text" id="templatConfig" value="<?php echo $rst['Config']; ?>"></label>
-			</p>
-			<p>
+			<div class="fillWidth">
+				<div>
+					<div><label for="templateTitle">Title</label></div>
+					<div><input type="text" id="templateTitle" value="<?php echo $rst['Title']; ?>" style="width:100%;"></div>
+				</div>
+				<div>
+					<div><label for="templatePath">Path to template</label></div>
+					<div><input type="text" id="templatePath" value="<?php echo $rst['Path']; ?>" style="width:100%;"></div>
+				</div>
+				<div>
+					<div><label for="templateConfig">Path to configuration</label></div>
+					<div><input type="text" id="templateConfig" value="<?php echo $rst['Config']; ?>" style="width:100%;"></div>
+				</div>
+			</div>
+			<p style="margin-top:0.75em;">
 			<input type="button" id="templateSave" value="Save">
 			</p>
 		</fieldset>
