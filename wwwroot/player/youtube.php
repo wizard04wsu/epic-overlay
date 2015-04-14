@@ -1,19 +1,17 @@
 <?php
-/*error_reporting(E_ALL);
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-*/
+error_reporting(E_ALL);
+//ini_set('display_errors', 0);
 
+header("Cache-Control: no-store, no-cache, max-age=0");
+header("Expires: -1");
+?><!DOCTYPE html>
+<?php
 //declare variables (just for my sanity)
 $errMsg = '';
-$instance = null;
-$dbPath = '';
-$db = null;
-$cmd = null;
+$instance;
+$dbPath; $db; $cmd; $sql; $rst;
 $_;	//placeholder variable (need a variable to pass to $cmd->Execute(), but I don't care what gets put into it)
-$sql = '';
-$rst = null;
-$settings = [];
+$title; $settingsJson; $settinsArr;
 
 
 if(empty($_GET['instance']) || !intval($_GET['instance'])){
@@ -35,7 +33,7 @@ else{
 		//make sure the instance number corresponds to an instance of this template
 		$cmd = new COM('ADODB.Command');
 		$cmd->ActiveConnection = $db;
-		$cmd->CommandText = 'SELECT * FROM Instance INNER JOIN Template ON Instance.Template = Template.ID ' .
+		$cmd->CommandText = 'SELECT Instance.* FROM Instance INNER JOIN Template ON Instance.Template = Template.ID ' .
 							'WHERE Template.Path = ? AND Instance.ID = ?';
 		$cmd->CommandType = 1;	//adCmdText
 		$rst = $cmd->Execute($_, array($_SERVER['URL'], $instance));
@@ -45,34 +43,30 @@ else{
 			$errMsg = 'Specified instance does not use this template.';
 		}
 		else{
-
-			$sql = "SELECT Option.Key, Setting.Value FROM Setting INNER JOIN [Option] ON Setting.Option = Option.ID WHERE Instance = $instance";
-
-			$rst = $db->Execute($sql);
-
-			while(!$rst->EOF){
-				$settings[$rst['Key']->Value] = $rst['Value']->Value;
-				
-				$rst->MoveNext();
+			$title = ''.$rst['Title'];
+			$settingsJson = ''.$rst['Settings'];
+			
+			//make sure it's valid JSON
+			$settingsArr = json_decode($settingsJson, true);
+			if($settingsJson != json_encode($settingsArr)){
+				$errMsg = 'Settings are malformed.';
+				$settingsJson = '{}';
 			}
-			
-			$rst->Close();
-			$db->Close();
-			
 		}
+		
+		$rst->Close();
+		$db->Close();
 		
 	}
 	
 }
-	
-?><!DOCTYPE html>
-
+?>
 <html>
 <head>
 	
 	<meta charset="UTF-8">
 	
-	<title>Epic Stream Man's YouTube Player</title>
+	<title><?php echo $title; ?></title>
 	
 	<style type="text/css" media="all">
 		html, body {
@@ -84,11 +78,19 @@ else{
 			width: 100%;
 			height: 100%;
 		}
+		#ytplayer {
+			display: block;
+		}
 	</style>
 	
 	<script type="text/javascript">
 		
-		var settings = <?php echo json_encode($settings); ?>;
+		var settings = <?php echo $settingsJson; ?>;
+		
+		if(settings.listType == "video_list"){
+			settings.listType = "playlist";
+			//settings.list = settings.list.split(",");
+		}
 		
 		function initPlayer(){
 			
@@ -217,13 +219,23 @@ else{
 </head>
 <body>
 <?php
-	if($errMsg){
-		echo $errMsg;
-	}
-	else{
-?>	<!-- The <iframe> with the video player will replace this <div>. -->
+if($errMsg){
+	echo $errMsg;
+}
+else{
+?>
+	<!-- The <iframe> with the video player will replace this <div>. -->
 	<div id="ytplayer"></div>
-	<script type="text/javascript">initPlayer();</script>
-	
-<?php } ?></body>
+	<script type="text/javascript">
+		if(settings.list){
+			initPlayer();
+		}
+		else{
+			document.getElementById("ytplayer").innerHTML = "No playlist is specified.";
+		}
+	</script>
+<?php
+}
+?>
+</body>
 </html>
