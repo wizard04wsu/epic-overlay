@@ -15,6 +15,12 @@ $settingsJson; $settingsArr;
 $listType; $listLabels; $listPatterns;
 
 
+if(@$_POST['getDefaults']){
+	//respond with the default settings for this template
+	exit('{"listType":"playlist","list":"","shuffle":"yes","loop":"yes","volume":"100"}');
+}
+
+
 if(empty($_GET['instance']) || !intval($_GET['instance'])){
 	$errMsg = 'Instance number is not specified.';
 }
