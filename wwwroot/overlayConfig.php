@@ -45,7 +45,19 @@ else{
 			text-align: left;
 			padding: 0.25em 0.5em;
 		}
+		
+		optgroup, option {
+			font-family:Consolas,Menlo,Monaco,Lucida Console,Liberation Mono,DejaVu Sans Mono,Bitstream Vera Sans Mono,Courier New,monospace;
+			font-style:normal;
+			padding-left:3px;
+		}
+		optgroup {
+			font-weight:bold;
+			text-decoration:underline;
+		}
 	</style>
+	
+	<script type="text/javascript" src="script/multiColumnSelect.js"></script>
 	
 </head>
 <body>
@@ -59,41 +71,38 @@ else{
 	
 	<fieldset>
 		<legend>Templates</legend>
-		<table id="templates">
-			<thead><tr><th>Title</th><th>Path</th></tr></thead>
-			<tbody>
+		<select id="templates" class="multiColumnSelect" size="10">
+			<optgroup label="Title;Path"></optgroup>
 <?php
-		$sql = "SELECT Title, Path FROM Template ORDER BY Title";
+		$sql = "SELECT ID, Title, Path FROM Template ORDER BY Title";
 		$rst = $db->Execute($sql);
 		while(!$rst->EOF){
-			echo '<tr><td>' . $rst['Title'] . '</td><td>' . $rst['Path'] . '</td></tr>\n';
+			echo '<option id="'.$rst['ID'].'">' . $rst['Title'].';'.$rst['Path'] . '</option>\n';
 			$rst->MoveNext();
 		}
 ?>
-		</tbody></table>
+		</select>
 	</fieldset>
 	
 	<fieldset>
 		<legend>Instances</legend>
-		<table id="instances">
-			<thead><tr><th>ID</th><th>Title</th><th>Template</th><th>Link</th></tr></thead>
-			<tbody>
+		<select id="instances" class="multiColumnSelect" size="10">
+			<optgroup label="Title;Template"></optgroup>
 <?php
-		$sql = "SELECT Instance.ID, Instance.Title, Template.Title AS Template, Template.Path FROM Instance INNER JOIN Template ON Instance.Template = Template.ID ORDER BY Instance.Title, Template.Title";
+		$sql = "SELECT Instance.ID, Instance.Title, Template.Title AS Template FROM Instance INNER JOIN Template ON Instance.Template = Template.ID ORDER BY Instance.Title, Template.Title";
 		$rst = $db->Execute($sql);
 		while(!$rst->EOF){
-			echo '<tr><td>' . $rst['ID'] . '</td><td>' . $rst['Title'] . '</td><td>' . $rst['Template'] . '</td><td><a href="'.$rst['Path'].'?instance='.$rst['ID'].'" target="_blank">Open</a></td></tr>\n';
+			echo '<option value="'.$rst['ID'].'">' . $rst['Title'].';'.$rst['Template'] . '</option>\n';
 			$rst->MoveNext();
 		}
 ?>
-		</tbody></table>
+		</select>
 	</fieldset>
 	
 	<fieldset>
 		<legend>Settings</legend>
-		<table id="instances">
-			<thead><tr><th>Instance ID</th><th>Key</th><th>Value</th></tr></thead>
-			<tbody>
+		<select id="settings" class="multiColumnSelect" size="10">
+			<optgroup label="Key;Value"></optgroup>
 <?php
 		$sql = "SELECT ID, Title, Settings FROM Instance ORDER BY Title";
 		$rst = $db->Execute($sql);
@@ -101,13 +110,17 @@ else{
 			$settingsArr = json_decode($rst['Settings'], true);
 			ksort($settingsArr);	//sort alphabetically by key
 			foreach($settingsArr as $key => $value){
-				echo '<tr><td>' . $rst['ID'] . '</td><td>' . $key . '</td><td>' . $value . '</td></tr>\n';
+				echo '<option id="'.$rst['ID'].'">' . $key.';'.$value . '</option>\n';
 			}
 			$rst->MoveNext();
 		}
 ?>
-		</tbody></table>
+		</select>
 	</fieldset>
+	
+	<script type="text/javascript">
+		multiColumnSelect(";", "\u00a0\u00a0\u00a0\u00a0");
+	</script>
 <?php
 		$rst->Close();
 		$db->Close();
