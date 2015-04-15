@@ -38,13 +38,27 @@ else{
 		
 		fieldset {
 			margin-bottom: 1.5em;
-			padding:1em 1.5em 1.5em;
+			padding:16px 24px 24px;
+			border:2px solid #6CF;
+			box-shadow: inset 0 0 100px -50px #6CF, inset 0 0 12px -3px #6CF;
 		}
 		fieldset p:first-of-type {
 			margin-top:0;
 		}
 		fieldset p:last-of-type {
 			margin-bottom:0;
+		}
+		
+		optgroup, option {
+			padding:0 0 2px !important;
+		}
+		optgroup {
+			margin-bottom:3px;
+		}
+		
+		select, .settingsBox {
+			border:2px inset #888;
+			padding:6px 8px;
 		}
 		
 		div.fillWidth {
@@ -63,6 +77,11 @@ else{
 			padding-right:0.5em;
 		}
 		div.fillWidth > div > div:last-child {
+			width:100%;
+		}
+		
+		div.fillWidth > div > div:last-child input {
+			box-sizing:border-box;
 			width:100%;
 		}
 		
@@ -117,25 +136,25 @@ else{
 ?>
 		</select>
 		</p>
-		<fieldset>
+		<div class="settingsBox">
 			<div class="fillWidth">
 				<div>
 					<div><label for="templateTitle">Title</label></div>
-					<div><input type="text" id="templateTitle" value="<?php echo $rst['Title']; ?>" style="width:100%;"></div>
+					<div><input type="text" id="templateTitle" value="<?php echo $rst['Title']; ?>"></div>
 				</div>
 				<div>
 					<div><label for="templatePath">Path to template</label></div>
-					<div><input type="text" id="templatePath" value="<?php echo $rst['Path']; ?>" style="width:100%;"></div>
+					<div><input type="text" id="templatePath" value="<?php echo $rst['Path']; ?>"></div>
 				</div>
 				<div>
 					<div><label for="templateConfig">Path to configuration</label></div>
-					<div><input type="text" id="templateConfig" value="<?php echo $rst['Config']; ?>" style="width:100%;"></div>
+					<div><input type="text" id="templateConfig" value="<?php echo $rst['Config']; ?>"></div>
 				</div>
 			</div>
 			<p style="margin-top:0.75em;">
 			<input type="button" id="templateSave" value="Save">
 			</p>
-		</fieldset>
+		</div>
 		<p>
 		<input type="button" id="templateRegister" value="Register a new template">
 		</p>
@@ -160,9 +179,9 @@ else{
 		<p>
 		<a id="instanceLink" href="<?php echo $rst['Path'].'?instance='.$rst['ID']; ?>" target="_blank">Open instance in new window</a>
 		</p>
-		<fieldset>
+		<div class="settingsBox">
 			<iframe id="settings" src="<?php echo $rst['Config'].'?instance='.$rst['ID']; ?>"></iframe>
-		</fieldset>
+		</div>
 		<p>
 		<input type="button" id="instanceCreate" value="Create a new instance">
 		</p>
