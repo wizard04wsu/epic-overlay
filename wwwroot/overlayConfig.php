@@ -10,6 +10,8 @@ header("Expires: -1");
 $errMsg = '';
 /*$dbPath;*/ $db; $sql; $rst;
 $settingsArr; $key; $value;
+$templateArr; $templateJson;
+$instanceArr; $instanceJson;
 
 
 //connect to the database
@@ -32,21 +34,29 @@ else{
 	
 	<style type="text/css" media="all">
 		#container {
-			display:inline-block;
-			min-width:500px;
+			display:table;
 		}
 		
 		fieldset {
 			margin-bottom: 1.5em;
 			padding:16px 24px 24px;
-			border:2px solid #6CF;
-			box-shadow: inset 0 0 100px -50px #6CF, inset 0 0 12px -3px #6CF;
+			float:left;
+			margin-right:8px;
+			min-width:500px;
 		}
 		fieldset p:first-of-type {
 			margin-top:0;
 		}
 		fieldset p:last-of-type {
 			margin-bottom:0;
+		}
+		#templatesSection {
+			border:2px solid #6CF;
+			box-shadow: inset 0 0 100px -50px #6CF, inset 0 0 12px -3px #6CF;
+		}
+		#instancesSection {
+			border:2px solid #E8AB51;
+			box-shadow: inset 0 0 100px -50px #E8AB51, inset 0 0 12px -3px #E8AB51;
 		}
 		
 		optgroup, option {
@@ -103,9 +113,12 @@ else{
 		iframe {
 			width:100%;
 			border:0;
+			display:block;
+			height:18.75em;
 		}
 	</style>
 	
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
 	<script type="text/javascript" src="script/multiColumnSelect.js"></script>
 	
 </head>
@@ -120,18 +133,19 @@ else{
 	
 	<div id="container">
 	
-	<fieldset>
+	<fieldset id="templatesSection">
 		<legend>Templates</legend>
 		<p>
 		<select id="templates" size="5">
 <?php
-		$sql = "SELECT ID, Title, Path, Config FROM Template ORDER BY Title";
+		$templateArr = array();
+		$sql = "SELECT * FROM Template ORDER BY Title";
 		$rst = $db->Execute($sql);
 		while(!$rst->EOF){
-			echo '<option id="'.$rst['ID'].'" '.($rst->AbsolutePosition == 1 ? 'selected' : '').'>' . $rst['Title'] . '</option>\n';
+			array_push($templateArr, array('id'=>$rst['ID']->Value, 'title'=>''.$rst['Title'], 'path'=>''.$rst['Path'], 'config'=>''.$rst['Config']));
 			$rst->MoveNext();
 		}
-		$rst->MoveFirst();
+		$templateJson = json_encode($templateArr);
 ?>
 		</select>
 		</p>
@@ -139,15 +153,15 @@ else{
 			<div class="fillWidth">
 				<div>
 					<div><label for="templateTitle">Title</label></div>
-					<div><input type="text" id="templateTitle" value="<?php echo $rst['Title']; ?>"></div>
+					<div><input type="text" id="templateTitle" value=""></div>
 				</div>
 				<div>
 					<div><label for="templatePath">Filename of template</label></div>
-					<div><input type="text" id="templatePath" value="<?php echo $rst['Path']; ?>"></div>
+					<div><input type="text" id="templatePath" value=""></div>
 				</div>
 				<div>
 					<div><label for="templateConfig">Filename of configuration</label></div>
-					<div><input type="text" id="templateConfig" value="<?php echo $rst['Config']; ?>"></div>
+					<div><input type="text" id="templateConfig" value=""></div>
 				</div>
 			</div>
 			<p style="margin-top:0.75em;">
@@ -156,65 +170,96 @@ else{
 		</div>
 		<p>
 		<input type="button" id="templateRegister" value="Register a new template">
+		<input type="button" id="templateRegister" value="Remove template">
 		</p>
+		<p>
+		<input type="button" id="instanceCreate" value="Create an instance">
+		</p>
+		<script type="text/javascript">
+			var i, templates = <?php echo $templateJson; ?>,
+				sel_templates = $("#templates"),
+				option;
+			
+			function textToHtml(str){
+				return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+			}
+			
+			//add the template <option>s to the list
+			for(i=0; i<templates.length; i++){
+				option = document.createElement("option");
+				option.value = templates[i].id;
+				option.selected = i==0;
+				option.innerHTML = textToHtml(templates[i].title);
+				option.template = templates[i];
+				sel_templates.append(option);
+			}
+			
+			//fill in the template settings
+			if(templates.length){
+				$("#templateTitle")[0].value = templates[0].title;
+				$("#templatePath")[0].value = templates[0].path;
+				$("#templateConfig")[0].value = templates[0].config;
+			}
+			
+			sel_templates.on("change", templateChange);
+			
+			function templateChange(evt){
+				//TODO
+			}
+		</script>
 	</fieldset>
 	
-	<fieldset>
+	<fieldset id="instancesSection">
 		<legend>Instances</legend>
 		<p>
 		<select id="instances" class="multiColumnSelect" size="8">
-			<optgroup label="Title;Template"></optgroup>
+			<optgroup label="Title\Template"></optgroup>
 <?php
-		$sql = "SELECT Instance.ID, Instance.Title, Template.Title AS Template, Template.Path, Template.Config FROM Instance INNER JOIN Template ON Instance.Template = Template.ID ORDER BY Instance.Title, Template.Title";
+		$instanceArr = array();
+		$sql = "SELECT Instance.ID, Instance.Title, Template.ID AS TemplateID, Template.Title AS TemplateTitle, Template.Path, Template.Config FROM Instance INNER JOIN Template ON Instance.Template = Template.ID ORDER BY Instance.Title, Template.Title";
 		$rst = $db->Execute($sql);
 		while(!$rst->EOF){
-			echo '<option value="'.$rst['ID'].'" '.($rst->AbsolutePosition == 1 ? 'selected' : '').'>' . $rst['Title'].';'.$rst['Template'] . '</option>\n';
+			array_push($instanceArr, array('id'=>$rst['ID']->Value, 'title'=>''.$rst['Title'], 'template'=>array('id'=>$rst['TemplateID']->Value, 'title'=>''.$rst['TemplateTitle'], 'path'=>''.$rst['Path'], 'config'=>''.$rst['Config'])));
 			$rst->MoveNext();
 		}
-		$rst->MoveFirst();
+		$instanceJson = json_encode($instanceArr);
 ?>
 		</select>
 		</p>
 		<p>
-		<a id="instanceLink" href="templates/<?php echo $rst['Path'].'?instance='.$rst['ID']; ?>" target="_blank">Open instance in new window</a>
+		<a id="instanceLink" href="#" target="_blank">Open instance in new window</a>
 		</p>
-		<div class="settingsBox">
-			<iframe id="settings" src="templates/<?php echo $rst['Config'].'?instance='.$rst['ID']; ?>"></iframe>
+		<div class="settingsBox" style="padding:0; margin-top:1.25em;">
+			<iframe id="settings" src=""></iframe>
 		</div>
-		<p>
-		<input type="button" id="instanceCreate" value="Create a new instance">
-		</p>
+		<script type="text/javascript">
+			var instances = <?php echo $instanceJson; ?>,
+				sel_instances = $("#instances");
+			
+			//add the instance <option>s to the list
+			for(i=0; i<instances.length; i++){
+				option = document.createElement("option");
+				option.value = instances[i].id;
+				option.selected = i==0;
+				option.innerHTML = textToHtml(instances[i].title).replace(/\\/g, "&#92;")+"\\"+textToHtml(instances[i].template.title).replace(/\\/g, "&#92;");
+				option.instance = instances[i];
+				sel_instances.append(option);
+			}
+			
+			multiColumnSelect("\\", "\u00a0\u00a0\u00a0\u00a0");
+			
+			$("#instanceLink")[0].href = "templates/"+instances[0].template.path+"?instance="+instances[0].id;
+			$("#settings")[0].src = "templates/"+instances[0].template.config+"?instance="+instances[0].id;
+			
+			sel_instances.on("change", instanceChange);
+			
+			function instanceChange(evt){
+				//TODO
+			}
+		</script>
 	</fieldset>
 	
 	</div>
-	
-	<script type="text/javascript">
-		var sel_templates = document.getElementById("templates"),
-			templateTitle = document.getElementById("templateTitle"),
-			templatePath = document.getElementById("templatePath"),
-			templateConfig = document.getElementById("templateConfig"),
-			templateSave = document.getElementById("templateSave"),
-			templateRegister = document.getElementById("templateRegister"),
-			sel_instances = document.getElementById("instances"),
-			instanceLink = document.getElementById("instanceLink"),
-			settings = document.getElementById("settings");
-		
-		multiColumnSelect(";", "\u00a0\u00a0\u00a0\u00a0");
-		
-		sel_templates.addEventListener("change", templateChange, false);
-		
-		sel_instances.addEventListener("change", instanceChange, false);
-		
-		function templateChange(){
-			var templateID = sel_templates.value;
-			
-			
-		}
-		
-		function instanceChange(){
-			//
-		}
-	</script>
 <?php
 		$rst->Close();
 		$db->Close();

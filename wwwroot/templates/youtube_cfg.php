@@ -78,6 +78,37 @@ else{
 			settings = <?php echo $settingsJson; ?>;
 	</script>
 	
+	<style type="text/css" media="all">
+		body {
+			padding:6px 8px;
+			margin:0;
+		}
+		
+		div.fillWidth {
+			display:table;
+			width:100%;
+		}
+		div.fillWidth > div {
+			display:table-row;
+		}
+		div.fillWidth > div > div {
+			display:table-cell;
+			padding:0.25em 0;
+		}
+		div.fillWidth label {
+			white-space:nowrap;
+			padding-right:0.5em;
+		}
+		div.fillWidth > div > div:last-child {
+			width:100%;
+		}
+		
+		div.fillWidth > div > div:last-child input {
+			box-sizing:border-box;
+			width:100%;
+		}
+	</style>
+	
 </head>
 <body>
 <?php
@@ -89,18 +120,23 @@ else{
 	$listLabels = array('playlist'=>'Playlist ID', 'video_list'=>'Video IDs (comma-separated)', 'user_uploads'=>'User Name', 'search'=>'Search Query');
 	$listPatterns = array('playlist'=>" *[0-9a-zA-Z_-]+ *", 'video_list'=>" *[0-9a-zA-Z_-]+(, *[0-9a-zA-Z_-]+)* *", 'user_uploads'=>" *[0-9a-zA-Z_'-]*(\.[0-9a-zA-Z_'-]+)*\.? *", 'search'=>"");
 ?>
-	<p>
-	<label>List Type <select id="listType">
-		<option value="playlist" <?php echo empty($listType) || $listType == 'playlist' ? 'selected' : ''; ?>>playlist</option>
-		<option value="video_list" <?php echo $listType == 'video_list' ? 'selected' : ''; ?>>list of videos</option>
-		<option value="user_uploads" <?php echo $listType == 'user_uploads' ? 'selected' : ''; ?>>user uploads</option>
-		<option value="search" <?php echo $listType == 'search' ? 'selected' : ''; ?>>search results</option>
-	</select></label>
-	</p>
-	
-	<p>
-	<label><span id="listLabel"><?php echo $listLabels[$listType]; ?></span> <input type="text" id="list" <?php echo $listPatterns[$listType] ? 'pattern="'.$listPatterns[$listType].'"' : ''?> value="<?php echo $settingsArr['list']; ?>"></label>
-	</p>
+	<div class="fillWidth">
+		<div>
+			<div><label for="listType">List Type</label></div>
+			<div>
+				<select id="listType">
+					<option value="playlist" <?php echo empty($listType) || $listType == 'playlist' ? 'selected' : ''; ?>>playlist</option>
+					<option value="video_list" <?php echo $listType == 'video_list' ? 'selected' : ''; ?>>list of videos</option>
+					<option value="user_uploads" <?php echo $listType == 'user_uploads' ? 'selected' : ''; ?>>user uploads</option>
+					<option value="search" <?php echo $listType == 'search' ? 'selected' : ''; ?>>search results</option>
+				</select>
+			</div>
+		</div>
+		<div>
+			<div><label for="list"><span id="listLabel"><?php echo $listLabels[$listType]; ?></span></label></div>
+			<div><input type="text" id="list" <?php echo $listPatterns[$listType] ? 'pattern="'.$listPatterns[$listType].'"' : ''?> value="<?php echo $settingsArr['list']; ?>"></div>
+		</div>
+	</div>
 	
 	<p>
 	<label><input type="checkbox" id="shuffle" <?php echo $settingsArr['shuffle'] ? 'checked' : ''; ?>> Shuffle</label><br>
