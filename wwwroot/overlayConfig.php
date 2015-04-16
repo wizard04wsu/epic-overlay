@@ -8,12 +8,12 @@ header("Expires: -1");
 <?php
 //declare variables (just for my sanity)
 $errMsg = '';
-$dbPath; $db; $sql; $rst;
+/*$dbPath;*/ $db; $sql; $rst;
 $settingsArr; $key; $value;
 
 
 //connect to the database
-$dbPath = realpath($_SERVER['DOCUMENT_ROOT'].'/../data/overlayConfig.accdb');
+require 'dbPath.php';
 if(!file_exists($dbPath)){
 	$errMsg = 'Could not find the database file.';
 }
@@ -123,13 +123,12 @@ else{
 	<fieldset>
 		<legend>Templates</legend>
 		<p>
-		<select id="templates" class="multiColumnSelect" size="10">
-			<optgroup label="Title;Path"></optgroup>
+		<select id="templates" size="5">
 <?php
 		$sql = "SELECT ID, Title, Path, Config FROM Template ORDER BY Title";
 		$rst = $db->Execute($sql);
 		while(!$rst->EOF){
-			echo '<option id="'.$rst['ID'].'" '.($rst->AbsolutePosition == 1 ? 'selected' : '').'>' . $rst['Title'].';'.$rst['Path'] . '</option>\n';
+			echo '<option id="'.$rst['ID'].'" '.($rst->AbsolutePosition == 1 ? 'selected' : '').'>' . $rst['Title'] . '</option>\n';
 			$rst->MoveNext();
 		}
 		$rst->MoveFirst();
@@ -143,11 +142,11 @@ else{
 					<div><input type="text" id="templateTitle" value="<?php echo $rst['Title']; ?>"></div>
 				</div>
 				<div>
-					<div><label for="templatePath">Path to template</label></div>
+					<div><label for="templatePath">Filename of template</label></div>
 					<div><input type="text" id="templatePath" value="<?php echo $rst['Path']; ?>"></div>
 				</div>
 				<div>
-					<div><label for="templateConfig">Path to configuration</label></div>
+					<div><label for="templateConfig">Filename of configuration</label></div>
 					<div><input type="text" id="templateConfig" value="<?php echo $rst['Config']; ?>"></div>
 				</div>
 			</div>
@@ -163,7 +162,7 @@ else{
 	<fieldset>
 		<legend>Instances</legend>
 		<p>
-		<select id="instances" class="multiColumnSelect" size="10">
+		<select id="instances" class="multiColumnSelect" size="8">
 			<optgroup label="Title;Template"></optgroup>
 <?php
 		$sql = "SELECT Instance.ID, Instance.Title, Template.Title AS Template, Template.Path, Template.Config FROM Instance INNER JOIN Template ON Instance.Template = Template.ID ORDER BY Instance.Title, Template.Title";
@@ -177,10 +176,10 @@ else{
 		</select>
 		</p>
 		<p>
-		<a id="instanceLink" href="<?php echo $rst['Path'].'?instance='.$rst['ID']; ?>" target="_blank">Open instance in new window</a>
+		<a id="instanceLink" href="templates/<?php echo $rst['Path'].'?instance='.$rst['ID']; ?>" target="_blank">Open instance in new window</a>
 		</p>
 		<div class="settingsBox">
-			<iframe id="settings" src="<?php echo $rst['Config'].'?instance='.$rst['ID']; ?>"></iframe>
+			<iframe id="settings" src="templates/<?php echo $rst['Config'].'?instance='.$rst['ID']; ?>"></iframe>
 		</div>
 		<p>
 		<input type="button" id="instanceCreate" value="Create a new instance">

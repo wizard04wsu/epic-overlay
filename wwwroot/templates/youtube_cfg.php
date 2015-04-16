@@ -9,7 +9,8 @@ header("Expires: -1");
 //declare variables (just for my sanity)
 $errMsg = '';
 $instance;
-$dbPath; $db; $cmd; $sql; $rst;
+/*$dbPath;*/ $db; $cmd; $sql; $rst;
+$pathParts;
 $_;	//placeholder variable (need a variable to pass to $cmd->Execute(), but I don't care what gets put into it)
 $settingsJson; $settingsArr;
 $listType; $listLabels; $listPatterns;
@@ -28,7 +29,8 @@ else{
 	
 	$instance = intval($_GET['instance']);
 	
-	$dbPath = realpath($_SERVER['DOCUMENT_ROOT'].'/../data/overlayConfig.accdb');
+	//connect to the database
+	require '../dbPath.php';
 	if(!file_exists($dbPath)){
 		$errMsg = 'Could not find the database file.';
 	}
@@ -43,7 +45,8 @@ else{
 		$cmd->CommandText = 'SELECT * FROM Instance INNER JOIN Template ON Instance.Template = Template.ID ' .
 							'WHERE Template.Config = ? AND Instance.ID = ?';
 		$cmd->CommandType = 1;	//adCmdText
-		$rst = $cmd->Execute($_, array($_SERVER['URL'], $instance));
+		$pathParts = explode('/', $_SERVER['URL']);
+		$rst = $cmd->Execute($_, array($pathParts[count($pathParts)-1], $instance));
 		
 		
 		if($rst->EOF){
