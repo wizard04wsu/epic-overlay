@@ -4,8 +4,7 @@ error_reporting(E_ALL);
 
 header("Cache-Control: no-store, no-cache, max-age=0");
 header("Expires: -1");
-?><!DOCTYPE html>
-<?php
+
 //declare variables (just for my sanity)
 $errMsg = '';
 $instance;
@@ -63,7 +62,8 @@ else{
 	}
 	
 }
-?>
+?><!DOCTYPE html>
+
 <html>
 <head>
 	
@@ -80,7 +80,7 @@ else{
 	
 	<style type="text/css" media="all">
 		body {
-			padding:6px 8px;
+			padding:6px 8px 8px;
 			margin:0;
 		}
 		
@@ -147,7 +147,7 @@ else{
 	<label>Initial Volume <input type="range" id="volume" max="100" min="0" step="1" value="<?php echo $settingsArr['volume']; ?>"> <span id="volumeNum"><?php echo $settingsArr['volume']; ?></span></label>
 	</p>
 	
-	<p>
+	<p style="margin-bottom:0;">
 	<input type="submit" id="save" value="Save" disabled> <input type="button" id="cancel" value="Cancel">
 	</p>
 	
@@ -234,10 +234,11 @@ else{
 			
 			//use jQuery to post the changes
 			$.ajax({
-				url: '/set.php',
+				url: '../set.php',
 				method: 'POST',
 				data: {
 					instance: instance,
+					action: "saveInstance",
 					settings: JSON.stringify(newSettings)
 				}
 			}).done(function(content, message, xhr) {
@@ -265,7 +266,15 @@ else{
 		}
 		
 		function cancel(){
-			location.reload(true);
+			//location.reload(true);
+			listValue = { playlist:"", video_list:"", user_uploads:"", search:"" }
+			i_list.value = "";
+			i_listType.value = settings.listType;
+			listTypeChange();
+			i_list.value = settings.list;
+			i_shuffle.checked = settings.shuffle;
+			i_loop.checked = settings.loop;
+			i_volume.value = settings.volume;
 		}
 	</script>
 <?php

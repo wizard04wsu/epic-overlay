@@ -9,24 +9,63 @@ header("Expires: -1");
 $errMsg = '';
 $settingsArr; $settingsJson = '';
 $instance;
-$dbPath; $db; $cmd; $sql; $rst;
+/*$dbPath;*/ $db; $cmd; $sql; $rst;
+$id;
 
-if(empty($_POST['instance']) || !intval($_POST['instance'])){
-	$errMsg = 'Instance number is not specified.';
+if(empty($_POST['action'])){
+	$errMsg = 'Action not specified.';
 }
-else{
+else if($_POST['action'] == 'saveInstance'){
 	
-	//make sure settings is a valid JSON string
-	@$settingsJson = $_POST['settings'];
-	$settingsArr = json_decode($settingsJson, true);
-	if($settingsJson != json_encode($settingsArr)){
-		$errMsg = 'Settings are malformed.';
+	if(empty($_POST['instance']) || !intval($_POST['instance'])){
+		$errMsg = 'Instance ID is not specified.';
+	}
+	else{
+		
+		//make sure settings is a valid JSON string
+		@$settingsJson = $_POST['settings'];
+		$settingsArr = json_decode($settingsJson, true);
+		if($settingsJson != json_encode($settingsArr)){
+			$errMsg = 'Settings are malformed.';
+		}
+		else{
+			
+			$instance = intval($_POST['instance']);
+			
+			require 'dbPath.php';
+			if(!file_exists($dbPath)){
+				$errMsg = 'Could not find the database file.';
+			}
+			else{
+				
+				$db = new COM('ADODB.Connection');
+				$db->Open("Provider=Microsoft.ACE.OLEDB.12.0; Data Source=$dbPath");
+				
+				$cmd = new COM('ADODB.Command');
+				$cmd->ActiveConnection = $db;
+				$cmd->CommandText = 'UPDATE Instance SET Settings = ? WHERE Instance.ID = ?';
+				$cmd->CommandType = 1;	//adCmdText
+				$cmd->Execute($_, array($settingsJson, $instance));
+				
+				$db->Close();
+				
+			}
+			
+		}
+		
+	}
+	
+}
+else if($_POST['action'] == 'deleteInstance'){
+	
+	if(empty($_POST['instance']) || !intval($_POST['instance'])){
+		$errMsg = 'Instance ID is not specified.';
 	}
 	else{
 		
 		$instance = intval($_POST['instance']);
 		
-		$dbPath = realpath($_SERVER['DOCUMENT_ROOT'].'/../data/overlayConfig.accdb');
+		require 'dbPath.php';
 		if(!file_exists($dbPath)){
 			$errMsg = 'Could not find the database file.';
 		}
@@ -37,15 +76,69 @@ else{
 			
 			$cmd = new COM('ADODB.Command');
 			$cmd->ActiveConnection = $db;
-			$cmd->CommandText = 'UPDATE Instance SET Settings = ? WHERE Instance.ID = ?';
+			$cmd->CommandText = 'DELETE * FROM Instance WHERE Instance.ID = ?';
 			$cmd->CommandType = 1;	//adCmdText
-			$cmd->Execute($_, array($settingsJson, $instance));
+			$cmd->Execute($_, array($instance));
 			
 			$db->Close();
 			
 		}
 		
 	}
+	
+}
+else if($_POST['action'] == 'createInstance'){
+	
+	if(empty($_POST['template']) || !intval($_POST['template'])){
+		$errMsg = 'Template ID is not specified.';
+	}
+	else if(empty($_POST['title'])){
+		$errMsg = 'Title is not specified.';
+	}
+	else{
+		
+		//make sure settings is a valid JSON string
+		@$settingsJson = $_POST['settings'];
+		$settingsArr = json_decode($settingsJson, true);
+		if($settingsJson != json_encode($settingsArr)){
+			$errMsg = 'Settings are malformed.';
+		}
+		else{
+			
+			require 'dbPath.php';
+			if(!file_exists($dbPath)){
+				$errMsg = 'Could not find the database file.';
+			}
+			else{
+				
+				$db = new COM('ADODB.Connection');
+				$db->Open("Provider=Microsoft.ACE.OLEDB.12.0; Data Source=$dbPath");
+				
+				$cmd = new COM('ADODB.Command');
+				$cmd->ActiveConnection = $db;
+				$cmd->CommandText = 'INSERT INTO Instance (Title, Template, Settings) VALUES (?, ?, ?)';
+				$cmd->CommandType = 1;	//adCmdText
+				$cmd->Execute($_, array($_POST['title'], $_POST['template'], $settingsJson));
+				
+				//get the newly created instance ID
+				$rst = new COM('ADODB.Recordset');
+				$rst->Open('SELECT @@IDENTITY', $db);
+				$id = intval($rst[0]);
+				
+				$db->Close();
+				
+				//respond with the instance ID
+				exit(json_encode($id));
+				
+			}
+			
+		}
+		
+	}
+	
+}
+else{
+	$errMsg = 'Unknown action.';
 }
 
 if($errMsg){

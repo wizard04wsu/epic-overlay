@@ -15,9 +15,15 @@ function multiColumnSelect(separator, columnGapStr){
 				//get the maximum string length in each column
 				
 				if(headings){
+					if(!headings.originalOptionText){
+						//store the original text in case this script needs to be run again because of changes to the list
+						headings.originalOptionText = headings.label;
+					}
+					
 					//create a temporary option element for the headings
 					headingsOption = document.createElement("option");
-					headingsOption.innerHTML = headings.label;
+					headingsOption.innerHTML = headings.originalOptionText;
+					
 					//insert the option into the list
 					options.unshift(headingsOption);
 				}
@@ -25,8 +31,13 @@ function multiColumnSelect(separator, columnGapStr){
 				//for each option
 				for(o=0; o<options.length; o++){
 					
+					if(!options[o].originalOptionText){
+						//store the original text in case this script needs to be run again because of changes to the list
+						options[o].originalOptionText = options[o].textContent || options[o].innerText;
+					}
+					
 					//get the text of each column in this option
-					columnText = (options[o].textContent || options[o].innerText).split(separator);
+					columnText = options[o].originalOptionText.split(separator);
 					
 					//for each column
 					for(c=0; c<columnText.length; c++){

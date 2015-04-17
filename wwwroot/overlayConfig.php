@@ -68,7 +68,7 @@ else{
 		
 		select, .settingsBox {
 			border:2px inset #888;
-			padding:6px 8px;
+			padding:6px 8px 8px;
 		}
 		
 		div.fillWidth {
@@ -136,7 +136,7 @@ else{
 	<fieldset id="templatesSection">
 		<legend>Templates</legend>
 		<p>
-		<select id="templates" size="5">
+		<select id="templates" size="7">
 <?php
 		$templateArr = array();
 		$sql = "SELECT * FROM Template ORDER BY Title";
@@ -148,6 +148,11 @@ else{
 		$templateJson = json_encode($templateArr);
 ?>
 		</select>
+		</p>
+		<p>
+			<input type="button" id="templateRegister" value="Register a new template">
+			<input type="button" id="templateRemove" value="Remove" style="float:right;">
+			<div style="clear:both;"></div>
 		</p>
 		<div class="settingsBox">
 			<div class="fillWidth">
@@ -166,19 +171,18 @@ else{
 			</div>
 			<p style="margin-top:0.75em;">
 			<input type="button" id="templateSave" value="Save">
+			<input type="button" id="templateCancel" value="Cancel">
 			</p>
 		</div>
-		<p>
-		<input type="button" id="templateRegister" value="Register a new template">
-		<input type="button" id="templateRegister" value="Remove template">
-		</p>
-		<p>
+		<p style="text-align:center;">
+		
 		<input type="button" id="instanceCreate" value="Create an instance">
 		</p>
 		<script type="text/javascript">
 			var i, templates = <?php echo $templateJson; ?>,
 				sel_templates = $("#templates"),
-				option;
+				option,
+				currentTemplate;
 			
 			function textToHtml(str){
 				return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
@@ -194,17 +198,122 @@ else{
 				sel_templates.append(option);
 			}
 			
-			//fill in the template settings
-			if(templates.length){
-				$("#templateTitle")[0].value = templates[0].title;
-				$("#templatePath")[0].value = templates[0].path;
-				$("#templateConfig")[0].value = templates[0].config;
+			sel_templates.on("change", templateChange);
+			templateChange();
+			
+			$("#templateRegister").on("click", registerTemplate);
+			
+			$("#instanceCreate").on("click", createInstance);
+			
+			function templateChange(){
+				currentTemplate = $("#templates option:selected")[0];
+				if(currentTemplate){
+					currentTemplate = currentTemplate.template;
+					$("#templateTitle")[0].value = currentTemplate.title;
+					$("#templatePath")[0].value = currentTemplate.path;
+					$("#templateConfig")[0].value = currentTemplate.config;
+					$("#templateTitle")[0].disabled = $("#templatePath")[0].disabled = $("#templateConfig")[0].disabled = false;
+					$("#templateRemove")[0].disabled = false;
+				}
+				else{	//no template selected
+					//clear fields
+					$("#templateTitle")[0].value = $("#templatePath")[0].value = $("#templateConfig")[0].value = "";
+					//disable buttons
+					$("#templateRemove")[0].disabled = $("#instanceCreate")[0].disabled = true;
+				}
 			}
 			
-			sel_templates.on("change", templateChange);
+			function registerTemplate(){
+				//deselect the current template
+				$("#templates option:selected").each(function (){ this.selected = false; });
+				currentTemplate = null;
+				templateChange();
+				//put cursor in Title field
+				$("#templateTitle")[0].focus();
+			}
 			
-			function templateChange(evt){
-				//TODO
+			function createInstance(){
+				
+				var template = currentTemplate;
+				
+				//get default template settings
+				$.ajax({
+					url: 'templates/'+template.config,
+					method: 'POST',
+					data: {
+						getDefaults: "1"
+					}
+				}).done(function(content, message, xhr) {
+					
+					var title;
+					
+					if (200 !== xhr.status) {	//error returned
+						//display the error message
+						alert("Failed to retrieve default settings:\n\n"+content);
+						return;
+					}
+					
+					//success
+					
+					//have the user input a title
+					title = prompt("Please enter the title.");
+					while(title.trim() === ""){
+						title = prompt("The title cannot be empty.\n\nPlease enter the title.");
+					}
+					if(title !== null){
+						
+						title = title.trim();
+						
+						//add the instance to the database
+						$.ajax({
+							url: 'set.php',
+							method: 'POST',
+							data: {
+								action: "createInstance",
+								title: title,
+								template: template.id,
+								settings: content
+							}
+						}).done(function(content, message, xhr) {
+							
+							var option, id;
+							
+							if (200 !== xhr.status) {	//error returned
+								//display the error message
+								alert("Failed to create the instance:\n\n"+content);
+								return;
+							}
+							
+							//success; get the ID
+							id = 1*JSON.parse(content);
+							if(id <= 0 || id !== Math.floor(id)){
+								alert("Invalid instance ID: "+id);
+								return;
+							}
+							
+							//add the instance <option> to the list
+							option = document.createElement("option");
+							option.value = id;
+							option.innerHTML = textToHtml(title).replace(/\\/g, "&#92;")+"\\"+textToHtml(template.title).replace(/\\/g, "&#92;");
+							option.instance = {id: id, title: title, template: template};
+							sel_instances.append(option);
+							multiColumnSelect("\\", "\u00a0\u00a0\u00a0\u00a0");
+							option.selected = true;
+							instanceChange();
+							
+						}).fail(function(xhr, message, errorThrown) {
+							//display a generic error message
+							alert("Failed to create the instance:\n\n"+message+"\n\n"+errorThrown);
+						});
+						
+					}
+					
+					
+				}).fail(function(xhr, message, errorThrown) {
+					//display a generic error message
+					alert("Failed to retrieve default settings:\n\n"+message+"\n\n"+errorThrown);
+				});
+				
 			}
 		</script>
 	</fieldset>
@@ -227,14 +336,18 @@ else{
 		</select>
 		</p>
 		<p>
-		<a id="instanceLink" href="#" target="_blank">Open instance in new window</a>
+			<a id="instanceLink" href="#" target="_blank">Open instance in new window</a>
+			<input type="button" id="instanceDelete" value="Delete" style="float:right;">
+			<div style="clear:both;"></div>
 		</p>
 		<div class="settingsBox" style="padding:0; margin-top:1.25em;">
 			<iframe id="settings" src=""></iframe>
 		</div>
 		<script type="text/javascript">
 			var instances = <?php echo $instanceJson; ?>,
-				sel_instances = $("#instances");
+				sel_instances = $("#instances"),
+				iframe = $("#settings")[0],
+				currentInstance;
 			
 			//add the instance <option>s to the list
 			for(i=0; i<instances.length; i++){
@@ -248,13 +361,61 @@ else{
 			
 			multiColumnSelect("\\", "\u00a0\u00a0\u00a0\u00a0");
 			
-			$("#instanceLink")[0].href = "templates/"+instances[0].template.path+"?instance="+instances[0].id;
-			$("#settings")[0].src = "templates/"+instances[0].template.config+"?instance="+instances[0].id;
+			iframe.addEventListener("load", updateIframeHeight, false);
 			
 			sel_instances.on("change", instanceChange);
+			instanceChange();
+			
+			$("#instanceDelete").on("click", deleteInstance);
 			
 			function instanceChange(evt){
-				//TODO
+				currentInstance = $("#instances option:selected")[0];
+				if(currentInstance){
+					currentInstance = currentInstance.instance;
+					$("#instanceLink")[0].style.visibility = "visible";
+					$("#instanceLink")[0].href = "templates/"+currentInstance.template.path+"?instance="+currentInstance.id;
+					iframe.src = "templates/"+currentInstance.template.config+"?instance="+currentInstance.id;
+				}
+				else{
+					$("#instanceLink")[0].style.visibility = "hidden";
+					iframe.src = "";
+				}
+			}
+			
+			function updateIframeHeight(){
+				iframe.style.height = iframe.contentWindow.document.body.clientHeight + "px";
+			}
+			
+			function deleteInstance(){
+				if(confirm("Are you sure you want to delete this instance of the "+currentInstance.template.title+" template?\n\n"+currentInstance.title)){
+					$.ajax({
+						url: 'set.php',
+						method: 'POST',
+						data: {
+							instance: currentInstance.id,
+							action: "deleteInstance"
+						}
+					}).done(function(content, message, xhr) {
+						
+						var remainingOptions;
+						
+						if (205 !== xhr.status) {	//error returned
+							//display the error message
+							alert("Failed to delete instance:\n\n"+content);
+							return;
+						}
+						
+						//success; remove the instance from the list
+						$("#instances option:selected").remove();
+						remainingOptions = $("#instances option");
+						if(remainingOptions[0]) remainingOptions[0].selected = true;
+						instanceChange();
+						
+					}).fail(function(xhr, message, errorThrown) {
+						//display a generic error message
+						alert("Failed to delete instance:\n\n"+message+"\n\n"+errorThrown);
+					});
+				}
 			}
 		</script>
 	</fieldset>
