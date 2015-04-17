@@ -209,11 +209,12 @@ else{
 				currentTemplate = $("#templates option:selected")[0];
 				if(currentTemplate){
 					currentTemplate = currentTemplate.template;
+					//populate fields
 					$("#templateTitle")[0].value = currentTemplate.title;
 					$("#templatePath")[0].value = currentTemplate.path;
 					$("#templateConfig")[0].value = currentTemplate.config;
-					$("#templateTitle")[0].disabled = $("#templatePath")[0].disabled = $("#templateConfig")[0].disabled = false;
-					$("#templateRemove")[0].disabled = false;
+					//enable buttons
+					$("#templateRemove")[0].disabled = $("#instanceCreate")[0].disabled = false;
 				}
 				else{	//no template selected
 					//clear fields
