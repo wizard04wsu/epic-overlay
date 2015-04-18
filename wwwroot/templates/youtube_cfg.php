@@ -13,6 +13,7 @@ $pathParts;
 $_;	//placeholder variable (need a variable to pass to $cmd->Execute(), but I don't care what gets put into it)
 $settingsJson; $settingsArr;
 $listType; $listLabels; $listPatterns;
+$title;
 
 
 if(@$_POST['getDefaults']){
@@ -41,7 +42,7 @@ else{
 		//make sure the instance number corresponds to an instance of this template
 		$cmd = new COM('ADODB.Command');
 		$cmd->ActiveConnection = $db;
-		$cmd->CommandText = 'SELECT * FROM Instance INNER JOIN Template ON Instance.Template = Template.ID ' .
+		$cmd->CommandText = 'SELECT Instance.* FROM Instance INNER JOIN Template ON Instance.Template = Template.ID ' .
 							'WHERE Template.Config = ? AND Instance.ID = ?';
 		$cmd->CommandType = 1;	//adCmdText
 		$pathParts = explode('/', $_SERVER['URL']);
@@ -52,6 +53,7 @@ else{
 			$errMsg = 'Specified instance does not use this template.';
 		}
 		else{
+			$title = ''.$rst['Title'];
 			$settingsJson = $rst['Settings']->Value;
 			$settingsArr = json_decode($settingsJson, true);
 		}
@@ -69,11 +71,14 @@ else{
 	
 	<meta charset="UTF-8">
 	
-	<title>Epic Stream Man's YouTube Player Configuration</title>
+	<title>Epic Overlay YouTube Player Configuration</title>
 	
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
 	
 	<script type="text/javascript">
+		/*** instanceTitle variable is required by overlayConfig.php ***/
+		var instanceTitle = <?php echo json_encode($title); ?>;
+		
 		var instance = <?php echo $instance; ?>,
 			settings = <?php echo $settingsJson; ?>;
 	</script>
@@ -122,6 +127,10 @@ else{
 ?>
 	<div class="fillWidth">
 		<div>
+			<div><label for="title">Title</label></div>
+			<div><input type="text" id="title" value="<?php echo htmlspecialchars($title); ?>"></div>
+		</div>
+		<div>
 			<div><label for="listType">List Type</label></div>
 			<div>
 				<select id="listType">
@@ -148,11 +157,12 @@ else{
 	</p>
 	
 	<p style="margin-bottom:0;">
+	<!-- save button must have id="save" so overlayConfig.php can find it -->
 	<input type="submit" id="save" value="Save" disabled> <input type="button" id="cancel" value="Cancel">
 	</p>
 	
 	<script type="text/javascript">
-		var i_listType, i_list, i_shuffle, i_loop, i_volume, btn_save, btn_cancel,
+		var i_title, i_listType, i_list, i_shuffle, i_loop, i_volume, btn_save, btn_cancel,
 			listType = settings.listType,
 			listValue = { playlist:"", video_list:"", user_uploads:"", search:"" },
 			listLabels = { playlist:"Playlist ID", video_list:"Video IDs (comma-separated)", user_uploads:"User Name", search:"Search Query" },
@@ -161,6 +171,8 @@ else{
 		
 		listValue[listType] = settings.list;
 		
+		(i_title = document.getElementById("title")).addEventListener("input", updateSaveBtn, false);
+		i_title.addEventListener("change", updateSaveBtn, false);	//for IE
 		(i_listType = document.getElementById("listType")).addEventListener("change", listTypeChange, false);
 		(i_list = document.getElementById("list")).addEventListener("input", updateSaveBtn, false);
 		i_list.addEventListener("change", updateSaveBtn, false);	//for IE
@@ -173,7 +185,7 @@ else{
 		
 		function updateSaveBtn(){
 			
-			if(i_listType.value == settings.listType && i_list.value == settings.list
+			if(i_title.value == instanceTitle && i_listType.value == settings.listType && i_list.value == settings.list
 			 && i_shuffle.checked == settings.shuffle && i_loop.checked == settings.loop
 			 && i_volume.value == settings.volume){
 				//all settings are the same as they were when the page loaded
@@ -228,7 +240,7 @@ else{
 			
 			//disable the form fields
 			btn_save.disabled = true;
-			i_listType.disabled = i_list.disabled = i_shuffle.disabled = i_loop.disabled = i_volume.disabled, btn_cancel.disabled = true;
+			i_title.disabled = i_listType.disabled = i_list.disabled = i_shuffle.disabled = i_loop.disabled = i_volume.disabled, btn_cancel.disabled = true;
 			//TODO: display some "waiting" indicator
 			
 			
@@ -239,6 +251,7 @@ else{
 				data: {
 					instance: instance,
 					action: "saveInstance",
+					title: i_title.value,
 					settings: JSON.stringify(newSettings)
 				}
 			}).done(function(content, message, xhr) {
@@ -249,7 +262,7 @@ else{
 					alert("Failed to save settings:\n\n"+content);
 					
 					//re-enable the form fields
-					i_listType.disabled = i_list.disabled = i_shuffle.disabled = i_loop.disabled = i_volume.disabled, btn_cancel.disabled = false;
+					i_title.disabled = i_listType.disabled = i_list.disabled = i_shuffle.disabled = i_loop.disabled = i_volume.disabled, btn_cancel.disabled = false;
 					updateSaveBtn();
 					
 					return;
@@ -267,6 +280,7 @@ else{
 		
 		function cancel(){
 			//location.reload(true);
+			i_title.value = instanceTitle;
 			listValue = { playlist:"", video_list:"", user_uploads:"", search:"" }
 			i_list.value = "";
 			i_listType.value = settings.listType;

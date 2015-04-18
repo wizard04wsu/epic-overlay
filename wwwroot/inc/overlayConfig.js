@@ -346,6 +346,7 @@ function initInstances(instances){
 	multiColumnSelect("\\", "\u00a0\u00a0\u00a0\u00a0");
 	
 	iframe.addEventListener("load", updateIframeHeight, false);
+	iframe.addEventListener("load", updateTitle, false);
 	sel_instances.on("change", instanceChange);
 	instanceChange();
 	$("#instanceDelete").on("click", deleteInstance);
@@ -366,6 +367,17 @@ function initInstances(instances){
 	
 	function updateIframeHeight(){
 		iframe.style.height = iframe.contentWindow.document.body.clientHeight + "px";
+	}
+	
+	function updateTitle(){
+		var title = iframe.contentWindow.instanceTitle,
+			option = $("#instances option:selected")[0];
+		if(title !== currentInstance.title){
+			currentInstance.title = title;
+			option.innerHTML = textToHtml(title).replace(/\\/g, "&#92;")+"\\"+textToHtml(currentInstance.template.title).replace(/\\/g, "&#92;");
+			option.originalOptionText = option.textContent || option.innerText;
+			multiColumnSelect("\\", "\u00a0\u00a0\u00a0\u00a0");
+		}
 	}
 	
 	function deleteInstance(){

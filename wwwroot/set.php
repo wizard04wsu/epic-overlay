@@ -10,7 +10,7 @@ $errMsg = '';
 $settingsArr; $settingsJson = '';
 $instance;
 /*$dbPath;*/ $db; $cmd; $sql; $rst;
-$id;
+$id; $title;
 
 if(empty($_POST['action'])){
 	$errMsg = 'Action not specified.';
@@ -19,6 +19,9 @@ else if($_POST['action'] == 'saveInstance'){
 	
 	if(empty($_POST['instance']) || !intval($_POST['instance'])){
 		$errMsg = 'Instance ID is not specified.';
+	}
+	else if(empty($_POST['title'])){
+		$errMsg = 'Title is not specified.';
 	}
 	else{
 		
@@ -31,6 +34,7 @@ else if($_POST['action'] == 'saveInstance'){
 		else{
 			
 			$instance = intval($_POST['instance']);
+			$title = ''.$_POST['title'];
 			
 			require 'inc/dbPath.php';
 			if(!file_exists($dbPath)){
@@ -43,9 +47,9 @@ else if($_POST['action'] == 'saveInstance'){
 				
 				$cmd = new COM('ADODB.Command');
 				$cmd->ActiveConnection = $db;
-				$cmd->CommandText = 'UPDATE Instance SET Settings = ? WHERE ID = ?';
+				$cmd->CommandText = 'UPDATE Instance SET Title = ?, Settings = ? WHERE ID = ?';
 				$cmd->CommandType = 1;	//adCmdText
-				$cmd->Execute($_, array($settingsJson, $instance));
+				$cmd->Execute($_, array($title, $settingsJson, $instance));
 				
 				$db->Close();
 				
