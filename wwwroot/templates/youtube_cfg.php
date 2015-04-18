@@ -29,7 +29,7 @@ else{
 	$instance = intval($_GET['instance']);
 	
 	//connect to the database
-	require '../dbPath.php';
+	require '../inc/dbPath.php';
 	if(!file_exists($dbPath)){
 		$errMsg = 'Could not find the database file.';
 	}

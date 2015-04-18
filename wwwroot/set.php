@@ -32,7 +32,7 @@ else if($_POST['action'] == 'saveInstance'){
 			
 			$instance = intval($_POST['instance']);
 			
-			require 'dbPath.php';
+			require 'inc/dbPath.php';
 			if(!file_exists($dbPath)){
 				$errMsg = 'Could not find the database file.';
 			}
@@ -65,7 +65,7 @@ else if($_POST['action'] == 'deleteInstance'){
 		
 		$instance = intval($_POST['instance']);
 		
-		require 'dbPath.php';
+		require 'inc/dbPath.php';
 		if(!file_exists($dbPath)){
 			$errMsg = 'Could not find the database file.';
 		}
@@ -105,7 +105,7 @@ else if($_POST['action'] == 'createInstance'){
 		}
 		else{
 			
-			require 'dbPath.php';
+			require 'inc/dbPath.php';
 			if(!file_exists($dbPath)){
 				$errMsg = 'Could not find the database file.';
 			}
@@ -144,9 +144,9 @@ else if($_POST['action'] == 'saveTemplate'){
 	}
 	else{
 		
-		$instance = intval($_POST['template']);
+		$template = intval($_POST['template']);
 		
-		require 'dbPath.php';
+		require 'inc/dbPath.php';
 		if(!file_exists($dbPath)){
 			$errMsg = 'Could not find the database file.';
 		}
@@ -170,10 +170,7 @@ else if($_POST['action'] == 'saveTemplate'){
 }
 else if($_POST['action'] == 'registerTemplate'){
 	
-	if(empty($_POST['template']) || !intval($_POST['template'])){
-		$errMsg = 'Template ID is not specified.';
-	}
-	else if(empty($_POST['title'])){
+	if(empty($_POST['title'])){
 		$errMsg = 'Title is not specified.';
 	}
 	else if(empty($_POST['path'])){
@@ -184,7 +181,7 @@ else if($_POST['action'] == 'registerTemplate'){
 	}
 	else{
 		
-		require 'dbPath.php';
+		require 'inc/dbPath.php';
 		if(!file_exists($dbPath)){
 			$errMsg = 'Could not find the database file.';
 		}
@@ -197,7 +194,7 @@ else if($_POST['action'] == 'registerTemplate'){
 			$cmd->ActiveConnection = $db;
 			$cmd->CommandText = 'INSERT INTO Template (Title, Path, Config) VALUES (?, ?, ?)';
 			$cmd->CommandType = 1;	//adCmdText
-			$cmd->Execute($_, array($_POST['title'], $_POST['path'], $_POST['config'], $template));
+			$cmd->Execute($_, array($_POST['title'], $_POST['path'], $_POST['config']));
 			
 			//get the newly created instance ID
 			$rst = new COM('ADODB.Recordset');
@@ -208,6 +205,37 @@ else if($_POST['action'] == 'registerTemplate'){
 			
 			//respond with the template ID
 			exit(json_encode($id));
+			
+		}
+		
+	}
+	
+}
+else if($_POST['action'] == 'removeTemplate'){
+	
+	if(empty($_POST['template']) || !intval($_POST['template'])){
+		$errMsg = 'Template ID is not specified.';
+	}
+	else{
+		
+		$template = intval($_POST['template']);
+		
+		require 'inc/dbPath.php';
+		if(!file_exists($dbPath)){
+			$errMsg = 'Could not find the database file.';
+		}
+		else{
+			
+			$db = new COM('ADODB.Connection');
+			$db->Open("Provider=Microsoft.ACE.OLEDB.12.0; Data Source=$dbPath");
+			
+			$cmd = new COM('ADODB.Command');
+			$cmd->ActiveConnection = $db;
+			$cmd->CommandText = 'DELETE * FROM Template WHERE ID = ?';
+			$cmd->CommandType = 1;	//adCmdText
+			$cmd->Execute($_, array($template));
+			
+			$db->Close();
 			
 		}
 		

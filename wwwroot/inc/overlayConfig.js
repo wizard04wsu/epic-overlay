@@ -1,6 +1,8 @@
 
 function initTemplates(templates){
 	
+    "use strict";
+    
 	var i, sel_templates = $("#templates"), option, currentTemplate,
 		iTitle = $("#templateTitle")[0],
 		iPath = $("#templatePath")[0],
@@ -21,6 +23,9 @@ function initTemplates(templates){
 	sel_templates.on("change", templateChange);
 	templateChange();
 	$("#templateRegister").on("click", registerTemplate);
+	$("#templateRemove").on("click", removeTemplate);
+	$("#templateSave").on("click", saveTemplate);
+	$("#templateCancel").on("click", cancelTemplate);
 	$("#instanceCreate").on("click", createInstance);
 	
 	iTitle.addEventListener("input", updateSaveBtn, false);
@@ -59,6 +64,38 @@ function initTemplates(templates){
 		$("#templateTitle")[0].focus();
 	}
 	
+	function removeTemplate(){
+		if(confirm("Are you sure you want to remove this template?\n\n"+currentTemplate.title)){
+			$.ajax({
+				url: 'set.php',
+				method: 'POST',
+				data: {
+					template: currentTemplate.id,
+					action: "removeTemplate"
+				}
+			}).done(function(content, message, xhr) {
+				
+				var remainingOptions;
+				
+				if (205 !== xhr.status) {	//error returned
+					//display the error message
+					alert("Failed to remove template:\n\n"+content);
+					return;
+				}
+				
+				//success; remove the template from the list
+				$("#templates option:selected").remove();
+				remainingOptions = $("#templates option");
+				if(remainingOptions[0]) remainingOptions[0].selected = true;
+				templateChange();
+				
+			}).fail(function(xhr, message, errorThrown) {
+				//display a generic error message
+				alert("Failed to remove template:\n\n"+message+"\n\n"+errorThrown);
+			});
+		}
+	}
+	
 	function updateSaveBtn(){
 		
 		var btn_save = $("#templateSave")[0];
@@ -77,8 +114,6 @@ function initTemplates(templates){
 	
 	function saveTemplate(){
 		
-		var action;
-		
 		//disable the form fields & buttons
 		iTitle.disabled = iPath.disabled = iConfig.disabled = $("#templateSave").disabled = $("#templateCancel").disabled = true;
 		//TODO: display some "waiting" indicator
@@ -88,7 +123,7 @@ function initTemplates(templates){
 			url: 'set.php',
 			method: 'POST',
 			data: {
-				template: currentTemplate.id,
+				template: currentTemplate ? currentTemplate.id : "",
 				action: currentTemplate ? "saveTemplate" : "registerTemplate",
 				title: iTitle.value,
 				path: iPath.value,
@@ -96,60 +131,98 @@ function initTemplates(templates){
 			}
 		}).done(function(content, message, xhr) {
 			
-			var option, id;
-			
-			if (205 !== xhr.status) {	//error returned
-				
-				//display the error message
-				alert("Failed to save settings:\n\n"+content);
-				
-				//re-enable the form fields & buttons
-				iTitle.disabled = iPath.disabled = iConfig.disabled = $("#templateSave").disabled = $("#templateCancel").disabled = true;
-				updateSaveBtn();
-				
-				return;
-				
-			}
-			
-			//success
+			var option, id, instances, i;
 			
 			if(!currentTemplate){	//template registered
 				
+				if (200 !== xhr.status) {	//error returned
+					//display the error message
+					alert("Failed to register template:\n\n"+content);
+
+					//re-enable the form fields & buttons
+					iTitle.disabled = iPath.disabled = iConfig.disabled = $("#templateSave").disabled = $("#templateCancel").disabled = false;
+					updateSaveBtn();
+
+					return;
+				}
+
 				//get the ID
 				id = 1*JSON.parse(content);
 				if(id <= 0 || id !== Math.floor(id)){
 					alert("Invalid instance ID: "+id);
+
+					//re-enable the form fields & buttons
+					iTitle.disabled = iPath.disabled = iConfig.disabled = $("#templateSave").disabled = $("#templateCancel").disabled = false;
+					updateSaveBtn();
+
 					return;
 				}
 				
 				//add the template <option> to the list
 				option = document.createElement("option");
 				option.value = id;
-				option.innerHTML = textToHtml(title);
+				option.innerHTML = textToHtml(iTitle.value);
 				option.template = {id: id, title: iTitle.value, path: iPath.value, config: iConfig.value};
 				sel_templates.append(option);
+				$("#templates option").sortElements(templateComparator);
 				option.selected = true;
 				templateChange();
 				
+				//re-enable the form fields & buttons
+				iTitle.disabled = iPath.disabled = iConfig.disabled = $("#templateSave").disabled = $("#templateCancel").disabled = false;
+				updateSaveBtn();
+
 			}
 			else{	//template saved
 				
+				if (205 !== xhr.status) {	//error returned
+					//display the error message
+					alert("Failed to save settings:\n\n"+content);
+
+					//re-enable the form fields & buttons
+					iTitle.disabled = iPath.disabled = iConfig.disabled = $("#templateSave").disabled = $("#templateCancel").disabled = false;
+					updateSaveBtn();
+
+					return;
+				}
+
+				//update the template <option>
+				option = $("#templates option:selected")[0];
+				option.innerHTML = textToHtml(iTitle.value);
+				currentTemplate = option.template = {id: currentTemplate.id, title: iTitle.value, path: iPath.value, config: iConfig.value};
+				$("#templates option").sortElements(templateComparator);
+				
+				//update the template names in the instance list
+				instances = $("#instances option");
+				for(i=0; i<instances.length; i++){
+					if(instances[i].instance.template.id == currentTemplate.id){
+						instances[i].instance.template = currentTemplate;
+						instances[i].innerHTML = textToHtml(instances[i].instance.title).replace(/\\/g, "&#92;")+"\\"+textToHtml(iTitle.value).replace(/\\/g, "&#92;");
+						instances[i].originalOptionText = instances[i].textContent || instances[i].innerText;
+					}
+				}
+				$("#templates option").sortElements(instanceComparator);
+				multiColumnSelect("\\", "\u00a0\u00a0\u00a0\u00a0");
+				
+				//re-enable the form fields & buttons
+				iTitle.disabled = iPath.disabled = iConfig.disabled = $("#templateSave").disabled = $("#templateCancel").disabled = false;
 				updateSaveBtn();
 				
 			}
 			
 		}).fail(function(xhr, message, errorThrown) {
 			//display a generic error message
-			alert("Failed to save settings:\n\n"+message+"\n\n"+errorThrown);
+			if(currentTemplate){
+				alert("Failed to save settings:\n\n"+message+"\n\n"+errorThrown);
+			}
+			else{
+				alert("Failed to register template:\n\n"+message+"\n\n"+errorThrown);
+			}
 		})
 		
 	}
 	
 	function cancelTemplate(){
-		
-		var iTitle = $("#templateTitle")[0],
-			iPath = $("#templatePath")[0],
-			iConfig = $("#templateConfig")[0];
 		
 		if(currentTemplate){
 			iTitle.value = currentTemplate.title;
@@ -159,6 +232,8 @@ function initTemplates(templates){
 		else{
 			iTitle.value = iPath.value = iConfig.value = "";
 		}
+		
+		updateSaveBtn();
 		
 	}
 	
@@ -227,6 +302,7 @@ function initTemplates(templates){
 					option.innerHTML = textToHtml(title).replace(/\\/g, "&#92;")+"\\"+textToHtml(template.title).replace(/\\/g, "&#92;");
 					option.instance = {id: id, title: title, template: template};
 					sel_instances.append(option);
+					$("#templates option").sortElements(instanceComparator);
 					multiColumnSelect("\\", "\u00a0\u00a0\u00a0\u00a0");
 					option.selected = true;
 					instanceChange();
@@ -251,6 +327,8 @@ function initTemplates(templates){
 
 function initInstances(instances){
 	
+    "use strict";
+    
 	var i, sel_instances = $("#instances"), iframe = $("#settings")[0], option, currentInstance;
 	
 	if(!sel_instances || !instances) return;
@@ -327,4 +405,15 @@ function initInstances(instances){
 
 function textToHtml(str){
 	return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+}
+
+function templateComparator(a, b){
+	return a.template.title < b.template.title ? 1 : -1;
+}
+
+function instanceComparator(a, b){
+	if(a.instance.title == b.instance.title){
+		return a.instance.template.title < b.instance.template.title ? 1 : -1;
+	}
+	return a.instance.title < b.instance.title ? 1 : -1;
 }

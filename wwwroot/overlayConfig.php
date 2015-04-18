@@ -15,7 +15,7 @@ $instanceArr; $instanceJson;
 
 
 //connect to the database
-require 'dbPath.php';
+require 'inc/dbPath.php';
 if(!file_exists($dbPath)){
 	$errMsg = 'Could not find the database file.';
 }
@@ -30,11 +30,12 @@ else{
 	
 	<meta charset="UTF-8">
 	
-	<title>Epic Stream Man's OBS Overlays Configuration</title>
+	<title>Epic Overlay Configuration</title>
 	
 	<link rel="stylesheet" media="all" href="inc/overlayConfig.css">
 	
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+	<script type="text/javascript" src="inc/jquery.sortElements.js"></script>	<!-- https://github.com/padolsey-archive/jquery.fn/tree/master/sortElements -->
 	<script type="text/javascript" src="inc/multiColumnSelect.js"></script>
 	<script type="text/javascript" src="inc/overlayConfig.js"></script>
 	
@@ -47,7 +48,7 @@ else{
 	else{
 ?>
 	<div style="text-align:center; margin-bottom:2em;">
-		<h1 style="margin-bottom:0.1em;">Epic Overlays Configuration</h1>
+		<h1 style="margin-bottom:0.1em;">Epic Overlay Configuration</h1>
 		<p style="font-size:80%; margin-top:0;">HTML overlays for use in the Open Broadcaster Software CLR browser</p>
 	</div>
 	
