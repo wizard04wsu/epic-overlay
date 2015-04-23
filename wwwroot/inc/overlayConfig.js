@@ -368,6 +368,7 @@ function initInstances(instances){
 			option.innerHTML = textToHtml(title).replace(/\\/g, "&#92;")+"\\"+textToHtml(currentInstance.template.title).replace(/\\/g, "&#92;");
 			option.originalOptionText = option.textContent || option.innerText;
 			multiColumnSelect("\\", "\u00a0\u00a0\u00a0\u00a0");
+			$("#instances option").sortElements(instanceComparator);
 		}
 	}
 	
@@ -411,14 +412,11 @@ function textToHtml(str){
 }
 
 function templateComparator(a, b){
-	return a.template.title < b.template.title ? 1 : -1;
+	return a.template.title.localeCompare(b.template.title);
 }
 
 function instanceComparator(a, b){
-	if(a.instance.title == b.instance.title){
-		return a.instance.template.title < b.instance.template.title ? 1 : -1;
-	}
-	return a.instance.title < b.instance.title ? 1 : -1;
+	return a.instance.title.localeCompare(b.instance.title) || a.instance.template.title.localeCompare(b.instance.template.title);
 }
 
 function instanceChange(evt){
