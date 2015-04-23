@@ -43,6 +43,13 @@ if(!$errMsg){
 			left:0;
 			overflow:hidden;
 		}
+		#clear {
+			position:absolute;
+			top:0;
+			right:0;
+			bottom:0;
+			left:0;
+		}
 	</style>
 	
 </head>
@@ -59,17 +66,33 @@ else{
 			data="http://www.twitch.tv/widgets/live_embed_player.swf" 
 			bgcolor="#000000"
 			>
+		<param name="wmode" value="opaque">	<!--so it stops displaying on top of stuff-->
 		<param name="allowFullScreen" 
-			value="false" />
+			value="false">
 		<param name="allowScriptAccess" 
-			value="always" />
+			value="always">
 		<param name="allowNetworking" 
-			value="all" />
+			value="all">
 		<param name="movie" 
-			value="http://www.twitch.tv/widgets/live_embed_player.swf" />
+			value="http://www.twitch.tv/widgets/live_embed_player.swf">
 		<param name="flashvars" 
-			value="channel=<?php echo htmlspecialchars($settingsArr['channel']) . $video; ?>&auto_play=true&start_volume=<?php echo $volume; ?>" />
+			value="channel=<?php echo htmlspecialchars($settingsArr['channel']) . $video; ?>&auto_play=true&start_volume=<?php echo $volume; ?>">
 	</object>
+	<div id="clear"></div>
+	
+	<script type="text/javascript">
+		var timer, clear = document.getElementById("clear");
+		clear.addEventListener("mousemove", showControls, false);
+		function showControls(evt){
+			document.body.style.bottom = 0;
+			clear.style.display = "none";
+			timer = setTimeout(hideControls, 3000);
+		}
+		function hideControls(evt){
+			document.body.style.bottom = "";
+			clear.style.display = "";
+		}
+	</script>
 <?php
 }
 ?>
