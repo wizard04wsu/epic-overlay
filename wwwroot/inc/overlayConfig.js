@@ -1,4 +1,6 @@
 
+var currentInstance, iframe;
+
 function initTemplates(templates){
 	
     "use strict";
@@ -6,7 +8,8 @@ function initTemplates(templates){
 	var i, sel_templates = $("#templates"), option, currentTemplate,
 		iTitle = $("#templateTitle")[0],
 		iPath = $("#templatePath")[0],
-		iConfig = $("#templateConfig")[0];
+		iConfig = $("#templateConfig")[0],
+		sel_instances = $("#instances");
 	
 	if(!sel_templates || !templates) return;
 	
@@ -201,7 +204,7 @@ function initTemplates(templates){
 						instances[i].originalOptionText = instances[i].textContent || instances[i].innerText;
 					}
 				}
-				$("#templates option").sortElements(instanceComparator);
+				$("#instances option").sortElements(instanceComparator);
 				multiColumnSelect("\\", "\u00a0\u00a0\u00a0\u00a0");
 				
 				//re-enable the form fields & buttons
@@ -302,7 +305,7 @@ function initTemplates(templates){
 					option.innerHTML = textToHtml(title).replace(/\\/g, "&#92;")+"\\"+textToHtml(template.title).replace(/\\/g, "&#92;");
 					option.instance = {id: id, title: title, template: template};
 					sel_instances.append(option);
-					$("#templates option").sortElements(instanceComparator);
+					$("#instances option").sortElements(instanceComparator);
 					multiColumnSelect("\\", "\u00a0\u00a0\u00a0\u00a0");
 					option.selected = true;
 					instanceChange();
@@ -329,7 +332,9 @@ function initInstances(instances){
 	
     "use strict";
     
-	var i, sel_instances = $("#instances"), iframe = $("#settings")[0], option, currentInstance;
+	var i, sel_instances = $("#instances"), option;
+	
+	iframe = $("#settings")[0];
 	
 	if(!sel_instances || !instances) return;
 	
@@ -351,26 +356,12 @@ function initInstances(instances){
 	instanceChange();
 	$("#instanceDelete").on("click", deleteInstance);
 	
-	function instanceChange(evt){
-		currentInstance = $("#instances option:selected")[0];
-		if(currentInstance){
-			currentInstance = currentInstance.instance;
-			$("#instanceLink")[0].style.visibility = "visible";
-			$("#instanceLink")[0].href = "templates/"+currentInstance.template.path+"?instance="+currentInstance.id;
-			iframe.src = "templates/"+currentInstance.template.config+"?instance="+currentInstance.id;
-		}
-		else{
-			$("#instanceLink")[0].style.visibility = "hidden";
-			iframe.src = "";
-		}
-	}
-	
 	function updateIframeHeight(){
 		iframe.style.height = iframe.contentWindow.document.body.clientHeight + "px";
 	}
 	
 	function updateTitle(){
-		var title = iframe.contentWindow.instanceTitle,
+		var title = iframe.contentWindow.instanceTitle.trim(),
 			option = $("#instances option:selected")[0];
 		if(title !== currentInstance.title){
 			currentInstance.title = title;
@@ -428,4 +419,19 @@ function instanceComparator(a, b){
 		return a.instance.template.title < b.instance.template.title ? 1 : -1;
 	}
 	return a.instance.title < b.instance.title ? 1 : -1;
+}
+
+function instanceChange(evt){
+	currentInstance = $("#instances option:selected")[0];
+	iframe = $("#settings")[0];
+	if(currentInstance){
+		currentInstance = currentInstance.instance;
+		$("#instanceLink")[0].style.visibility = "visible";
+		$("#instanceLink")[0].href = "templates/"+currentInstance.template.path+"?instance="+currentInstance.id;
+		iframe.src = "templates/"+currentInstance.template.config+"?instance="+currentInstance.id;
+	}
+	else{
+		$("#instanceLink")[0].style.visibility = "hidden";
+		iframe.src = "";
+	}
 }

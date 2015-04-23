@@ -29,14 +29,14 @@ else{
 		$cmd = new COM('ADODB.Command');
 		$cmd->ActiveConnection = $db;
 		$cmd->CommandText = 'SELECT Instance.* FROM Instance INNER JOIN Template ON Instance.Template = Template.ID ' .
-							'WHERE Template.Path = ? AND Instance.ID = ?';
+							'WHERE Template.Config = ? AND Instance.ID = ?';
 		$cmd->CommandType = 1;	//adCmdText
 		$pathParts = explode('/', $_SERVER['URL']);
 		$rst = $cmd->Execute($_, array($pathParts[count($pathParts)-1], $instance));
 		
 		
 		if($rst->EOF){
-			$errMsg = 'Specified instance does not use this template.';
+			$errMsg = 'Specified instance does not use this template.'.$pathParts[count($pathParts)-1];
 		}
 		else{
 			$title = ''.$rst['Title'];

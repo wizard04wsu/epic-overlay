@@ -5,65 +5,15 @@ error_reporting(E_ALL);
 header("Cache-Control: no-store, no-cache, max-age=0");
 header("Expires: -1");
 
-//declare variables (just for my sanity)
-$errMsg = '';
-$instance;
-/*$dbPath;*/ $db; $cmd; $sql; $rst;
-$pathParts;
-$_;	//placeholder variable (need a variable to pass to $cmd->Execute(), but I don't care what gets put into it)
-$settingsJson; $settingsArr;
-$listType; $listLabels; $listPatterns;
-$title;
-
-
 if(@$_POST['getDefaults']){
 	//respond with the default settings for this template
 	exit('{"listType":"playlist","list":"","shuffle":"yes","loop":"yes","volume":"100"}');
 }
 
+require '_getSettings_cfg.php';
 
-if(empty($_GET['instance']) || !intval($_GET['instance'])){
-	$errMsg = 'Instance number is not specified.';
-}
-else{
-	
-	$instance = intval($_GET['instance']);
-	
-	//connect to the database
-	require '../inc/dbPath.php';
-	if(!file_exists($dbPath)){
-		$errMsg = 'Could not find the database file.';
-	}
-	else{
-		
-		$db = new COM('ADODB.Connection');
-		$db->Open("Provider=Microsoft.ACE.OLEDB.12.0; Data Source=$dbPath");
-		
-		//make sure the instance number corresponds to an instance of this template
-		$cmd = new COM('ADODB.Command');
-		$cmd->ActiveConnection = $db;
-		$cmd->CommandText = 'SELECT Instance.* FROM Instance INNER JOIN Template ON Instance.Template = Template.ID ' .
-							'WHERE Template.Config = ? AND Instance.ID = ?';
-		$cmd->CommandType = 1;	//adCmdText
-		$pathParts = explode('/', $_SERVER['URL']);
-		$rst = $cmd->Execute($_, array($pathParts[count($pathParts)-1], $instance));
-		
-		
-		if($rst->EOF){
-			$errMsg = 'Specified instance does not use this template.';
-		}
-		else{
-			$title = ''.$rst['Title'];
-			$settingsJson = $rst['Settings']->Value;
-			$settingsArr = json_decode($settingsJson, true);
-		}
-		
-		$rst->Close();
-		$db->Close();
-		
-	}
-	
-}
+$listType; $listLabels; $listPatterns;
+
 ?><!DOCTYPE html>
 
 <html>
@@ -71,17 +21,9 @@ else{
 	
 	<meta charset="UTF-8">
 	
-	<title>Epic Overlay YouTube Player Configuration</title>
+	<title>Epic Overlay YouTube player configuration</title>
 	
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
-	
-	<script type="text/javascript">
-		/*** instanceTitle variable is required by overlayConfig.php ***/
-		var instanceTitle = <?php echo json_encode($title); ?>;
-		
-		var instance = <?php echo $instance; ?>,
-			settings = <?php echo $settingsJson; ?>;
-	</script>
 	
 	<style type="text/css" media="all">
 		body {
@@ -125,10 +67,18 @@ else{
 	$listLabels = array('playlist'=>'Playlist ID', 'video_list'=>'Video IDs (comma-separated)', 'user_uploads'=>'User Name', 'search'=>'Search Query');
 	$listPatterns = array('playlist'=>" *[0-9a-zA-Z_-]+ *", 'video_list'=>" *[0-9a-zA-Z_-]+(, *[0-9a-zA-Z_-]+)* *", 'user_uploads'=>" *[0-9a-zA-Z_'-]*(\.[0-9a-zA-Z_'-]+)*\.? *", 'search'=>"");
 ?>
+	<script type="text/javascript">
+		/*** instanceTitle variable is required by overlayConfig.php ***/
+		var instanceTitle = <?php echo json_encode($title); ?>;
+		
+		var instance = <?php echo $instance; ?>,
+			settings = <?php echo $settingsJson; ?>;
+	</script>
+	
 	<div class="fillWidth">
 		<div>
 			<div><label for="title">Title</label></div>
-			<div><input type="text" id="title" value="<?php echo htmlspecialchars($title); ?>"></div>
+			<div><input type="text" id="title" pattern=".+" value="<?php echo htmlspecialchars($title); ?>"></div>
 		</div>
 		<div>
 			<div><label for="listType">List Type</label></div>
@@ -143,7 +93,7 @@ else{
 		</div>
 		<div>
 			<div><label for="list"><span id="listLabel"><?php echo $listLabels[$listType]; ?></span></label></div>
-			<div><input type="text" id="list" <?php echo $listPatterns[$listType] ? 'pattern="'.$listPatterns[$listType].'"' : ''?> value="<?php echo $settingsArr['list']; ?>"></div>
+			<div><input type="text" id="list" <?php echo $listPatterns[$listType] ? 'pattern="'.$listPatterns[$listType].'"' : ''?> value="<?php echo htmlspecialchars($settingsArr['list']); ?>"></div>
 		</div>
 	</div>
 	
@@ -153,7 +103,7 @@ else{
 	</p>
 	
 	<p>
-	<label>Initial Volume <input type="range" id="volume" max="100" min="0" step="1" value="<?php echo $settingsArr['volume']; ?>"> <span id="volumeNum"><?php echo $settingsArr['volume']; ?></span></label>
+	<label>Initial Volume <input type="range" id="volume" max="100" min="0" step="1" value="<?php echo htmlspecialchars($settingsArr['volume']); ?>"> <span id="volumeNum"><?php echo htmlspecialchars($settingsArr['volume']); ?></span></label>
 	</p>
 	
 	<p style="margin-bottom:0;">
@@ -191,7 +141,7 @@ else{
 				//all settings are the same as they were when the page loaded
 				btn_save.disabled = true;
 			}
-			else if(!i_list.validity.valid){
+			else if(!i_title.validity.valid || !i_list.validity.valid){
 				//list text box has an invalid value
 				btn_save.disabled = true;
 			}
@@ -226,12 +176,17 @@ else{
 		}
 		
 		function save(){
+			var newSettings, volume;
+			
+			volume = 1*i_volume.value;
+			if(!volume && volume !== 0) volume = settings.volume;
+			
 			var newSettings = {
 					listType: i_listType.value,
 					list: i_list.value.trim(),
 					shuffle: i_shuffle.checked,
 					loop: i_loop.checked,
-					volume: 1*i_volume.value || settings.volume
+					volume: volume
 				};
 			
 			if(newSettings.listType == "video_list"){

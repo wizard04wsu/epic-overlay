@@ -14,7 +14,7 @@ require '_getSettings.php';
 	
 	<meta charset="UTF-8">
 	
-	<title><?php echo $title; ?></title>
+	<title><?php echo $title ? htmlspecialchars($title) : 'Epic Overlay: player'; ?></title>
 	
 	<style type="text/css" media="all">
 		html, body {
@@ -30,20 +30,6 @@ require '_getSettings.php';
 		}
 	</style>
 	
-	<script type="text/javascript">
-		
-		var settings = <?php echo $settingsJson; ?>;
-		
-		function initPlayer(){
-			
-			"use strict";
-			
-			//
-			
-		}
-		
-	</script>
-	
 </head>
 <body>
 <?php
@@ -54,6 +40,7 @@ else{
 ?>
 	<div id="player"></div>
 	<script type="text/javascript">
+		var settings = <?php echo $settingsJson; ?>;
 		//
 	</script>
 <?php

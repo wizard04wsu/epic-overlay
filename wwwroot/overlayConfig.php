@@ -99,9 +99,6 @@ else{
 		
 		<input type="button" id="instanceCreate" value="Create an instance">
 		</p>
-		<script type="text/javascript">
-			initTemplates(<?php echo $templateJson; ?>);
-		</script>
 	</fieldset>
 	
 	<fieldset id="instancesSection">
@@ -130,6 +127,7 @@ else{
 			<iframe id="settings" src=""></iframe>
 		</div>
 		<script type="text/javascript">
+			initTemplates(<?php echo $templateJson; ?>);
 			initInstances(<?php echo $instanceJson; ?>);
 		</script>
 	</fieldset>
