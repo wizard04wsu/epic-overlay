@@ -5,7 +5,7 @@ $instance;
 /*$dbPath;*/ $db; $cmd; $sql; $rst;
 $pathParts;
 $_;	//placeholder variable (need a variable to pass to $cmd->Execute(), but I don't care what gets put into it)
-$title = ''; $settingsJson; $settinsArr;
+$title = ''; $settingsJson; $settinsArr; $modified;
 
 
 if(empty($_GET['instance']) || !intval($_GET['instance'])){
@@ -40,6 +40,7 @@ else{
 		}
 		else{
 			$title = ''.$rst['Title'];
+			$modified = ''.$rst['Modified'];
 			$settingsJson = ''.$rst['Settings'];
 			
 			/*
