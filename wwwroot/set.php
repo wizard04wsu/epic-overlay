@@ -34,7 +34,13 @@ else if($_POST['action'] == 'saveInstance'){
 		else{
 			
 			$instance = intval($_POST['instance']);
-			$title = ''.$_POST['title'];
+			$title = htmlspecialchars(''.$_POST['title'], ENT_QUOTES | ENT_HTML5, 'UTF-8', false);
+			
+			//html encode the settings values
+			foreach($settingsArr as &$value){
+				$value = htmlspecialchars($value, ENT_QUOTES | ENT_HTML5, 'UTF-8', false);
+			}
+			$settingsJson = json_encode($settingsArr);
 			
 			require 'inc/dbPath.php';
 			if(!file_exists($dbPath)){

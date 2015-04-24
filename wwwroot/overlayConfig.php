@@ -36,6 +36,7 @@ else{
 	
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
 	<script type="text/javascript" src="inc/jquery.sortElements.js"></script>	<!-- https://github.com/padolsey-archive/jquery.fn/tree/master/sortElements -->
+	<script type="text/javascript" src="inc/htmlEncode.js"></script>
 	<script type="text/javascript" src="inc/multiColumnSelect.js"></script>
 	<script type="text/javascript" src="inc/overlayConfig.js"></script>
 	

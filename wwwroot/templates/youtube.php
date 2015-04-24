@@ -14,7 +14,7 @@ require '_getSettings.php';
 	
 	<meta charset="UTF-8">
 	
-	<title><?php echo $title ? htmlspecialchars($title) : 'Epic Overlay: YouTube player'; ?></title>
+	<title><?php echo $title ? $title : 'Epic Overlay: YouTube player'; ?></title>
 	
 	<style type="text/css" media="all">
 		html, body {

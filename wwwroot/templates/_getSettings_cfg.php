@@ -42,12 +42,15 @@ else{
 			$title = ''.$rst['Title'];
 			$settingsJson = ''.$rst['Settings'];
 			
+			/*
 			//make sure it's valid JSON
 			$settingsArr = json_decode($settingsJson, true);
 			if($settingsJson != json_encode($settingsArr)){
 				$errMsg = 'Settings are malformed.';
 				$settingsJson = '{}';
 			}
+			*/
+			$settingsArr = json_decode($settingsJson, true);
 		}
 		
 		$rst->Close();

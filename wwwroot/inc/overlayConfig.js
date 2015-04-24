@@ -18,7 +18,7 @@ function initTemplates(templates){
 		option = document.createElement("option");
 		option.value = templates[i].id;
 		option.selected = i==0;
-		option.innerHTML = textToHtml(templates[i].title);
+		option.innerHTML = templates[i].title;
 		option.template = templates[i];
 		sel_templates.append(option);
 	}
@@ -68,7 +68,7 @@ function initTemplates(templates){
 	}
 	
 	function removeTemplate(){
-		if(confirm("Are you sure you want to remove this template?\n\n"+currentTemplate.title)){
+		if(confirm("Are you sure you want to remove this template?\n\n"+HTMLToText(currentTemplate.title))){
 			$.ajax({
 				url: 'set.php',
 				method: 'POST',
@@ -164,7 +164,7 @@ function initTemplates(templates){
 				//add the template <option> to the list
 				option = document.createElement("option");
 				option.value = id;
-				option.innerHTML = textToHtml(iTitle.value);
+				option.innerHTML = iTitle.value;
 				option.template = {id: id, title: iTitle.value, path: iPath.value, config: iConfig.value};
 				sel_templates.append(option);
 				$("#templates option").sortElements(templateComparator);
@@ -191,7 +191,7 @@ function initTemplates(templates){
 
 				//update the template <option>
 				option = $("#templates option:selected")[0];
-				option.innerHTML = textToHtml(iTitle.value);
+				option.innerHTML = iTitle.value;
 				currentTemplate = option.template = {id: currentTemplate.id, title: iTitle.value, path: iPath.value, config: iConfig.value};
 				$("#templates option").sortElements(templateComparator);
 				
@@ -200,8 +200,8 @@ function initTemplates(templates){
 				for(i=0; i<instances.length; i++){
 					if(instances[i].instance.template.id == currentTemplate.id){
 						instances[i].instance.template = currentTemplate;
-						instances[i].innerHTML = textToHtml(instances[i].instance.title).replace(/\\/g, "&#92;")+"\\"+textToHtml(iTitle.value).replace(/\\/g, "&#92;");
-						instances[i].originalOptionText = instances[i].textContent || instances[i].innerText;
+						instances[i].innerHTML = instances[i].instance.title.replace(/\\/g, "&#92;")+"\\"+iTitle.value.replace(/\\/g, "&#92;");
+						instances[i].originalOptionText = instances[i].innerHTML;
 					}
 				}
 				$("#instances option").sortElements(instanceComparator);
@@ -270,7 +270,7 @@ function initTemplates(templates){
 			}
 			if(title !== null){
 				
-				title = title.trim();
+				title = textToHTML(title.trim());
 				
 				//add the instance to the database
 				$.ajax({
@@ -302,7 +302,7 @@ function initTemplates(templates){
 					//add the instance <option> to the list
 					option = document.createElement("option");
 					option.value = id;
-					option.innerHTML = textToHtml(title).replace(/\\/g, "&#92;")+"\\"+textToHtml(template.title).replace(/\\/g, "&#92;");
+					option.innerHTML = title.replace(/\\/g, "&#92;")+"\\"+template.title.replace(/\\/g, "&#92;");
 					option.instance = {id: id, title: title, template: template};
 					sel_instances.append(option);
 					$("#instances option").sortElements(instanceComparator);
@@ -343,7 +343,7 @@ function initInstances(instances){
 		option = document.createElement("option");
 		option.value = instances[i].id;
 		option.selected = i==0;
-		option.innerHTML = textToHtml(instances[i].title).replace(/\\/g, "&#92;")+"\\"+textToHtml(instances[i].template.title).replace(/\\/g, "&#92;");
+		option.innerHTML = instances[i].title.replace(/\\/g, "&#92;")+"\\"+instances[i].template.title.replace(/\\/g, "&#92;");
 		option.instance = instances[i];
 		sel_instances.append(option);
 	}
@@ -365,15 +365,15 @@ function initInstances(instances){
 			option = $("#instances option:selected")[0];
 		if(title !== currentInstance.title){
 			currentInstance.title = title;
-			option.innerHTML = textToHtml(title).replace(/\\/g, "&#92;")+"\\"+textToHtml(currentInstance.template.title).replace(/\\/g, "&#92;");
-			option.originalOptionText = option.textContent || option.innerText;
+			option.innerHTML = title.replace(/\\/g, "&#92;")+"\\"+currentInstance.template.title.replace(/\\/g, "&#92;");
+			option.originalOptionText = option.innerHTML;
 			multiColumnSelect("\\", "\u00a0\u00a0\u00a0\u00a0");
 			$("#instances option").sortElements(instanceComparator);
 		}
 	}
 	
 	function deleteInstance(){
-		if(confirm("Are you sure you want to delete this instance of the "+currentInstance.template.title+" template?\n\n"+currentInstance.title)){
+		if(confirm("Are you sure you want to delete this instance of the "+HTMLToText(currentInstance.template.title)+" template?\n\n"+HTMLToText(currentInstance.title))){
 			$.ajax({
 				url: 'set.php',
 				method: 'POST',
@@ -407,16 +407,13 @@ function initInstances(instances){
 }
 
 
-function textToHtml(str){
-	return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
-}
-
 function templateComparator(a, b){
-	return a.template.title.localeCompare(b.template.title);
+	return HTMLToText(a.template.title).localeCompare(HTMLToText(b.template.title));
 }
 
 function instanceComparator(a, b){
-	return a.instance.title.localeCompare(b.instance.title) || a.instance.template.title.localeCompare(b.instance.template.title);
+	return HTMLToText(a.instance.title).localeCompare(HTMLToText(b.instance.title)) ||
+		HTMLToText(a.instance.template.title).localeCompare(HTMLToText(b.instance.template.title));
 }
 
 function instanceChange(evt){

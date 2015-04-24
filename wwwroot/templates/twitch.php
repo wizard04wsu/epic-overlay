@@ -14,7 +14,7 @@ if(!$errMsg){
 	$volume = intval($settingsArr['volume']);
 	$volume = $volume < 0 ? 0 : $volume > 100 ? 100 : $volume;
 	
-	$video = $settingsArr['video'] ? '&videoId='.htmlspecialchars($settingsArr['video']) : '';
+	$video = $settingsArr['video'] ? '&videoId='.$settingsArr['video'] : '';
 	
 }
 
@@ -25,7 +25,7 @@ if(!$errMsg){
 	
 	<meta charset="UTF-8">
 	
-	<title><?php echo $title ? htmlspecialchars($title) : 'Epic Overlay: Twitch player'; ?></title>
+	<title><?php echo $title ? $title : 'Epic Overlay: Twitch player'; ?></title>
 	
 	<style type="text/css" media="all">
 		html, body {
@@ -76,7 +76,7 @@ else{
 		<param name="movie" 
 			value="http://www.twitch.tv/widgets/live_embed_player.swf">
 		<param name="flashvars" 
-			value="channel=<?php echo htmlspecialchars($settingsArr['channel']) . $video; ?>&auto_play=true&start_volume=<?php echo $volume; ?>">
+			value="channel=<?php echo $settingsArr['channel'] . $video; ?>&auto_play=true&start_volume=<?php echo $volume; ?>">
 	</object>
 	<div id="clear"></div>
 	

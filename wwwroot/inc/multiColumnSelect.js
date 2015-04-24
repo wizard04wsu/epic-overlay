@@ -33,7 +33,7 @@ function multiColumnSelect(separator, columnGapStr){
 					
 					if(!options[o].originalOptionText){
 						//store the original text in case this script needs to be run again because of changes to the list
-						options[o].originalOptionText = options[o].textContent || options[o].innerText;
+						options[o].originalOptionText = options[o].innerHTML;
 					}
 					
 					//get the text of each column in this option
@@ -43,9 +43,10 @@ function multiColumnSelect(separator, columnGapStr){
 					for(c=0; c<columnText.length; c++){
 						//remove extra spaces
 						columnText[c] = columnText[c].replace(/\s+/g, " ").trim();
+						console.log(columnText[c]);
 						//update the maximum string length in this column
-						if(columnText[c].length > (maxLen[c] || 0)){
-							maxLen[c] = columnText[c].length;
+						if(HTMLToText(columnText[c]).length > (maxLen[c] || 0)){
+							maxLen[c] = HTMLToText(columnText[c]).length;
 						}
 					}
 					
@@ -65,7 +66,7 @@ function multiColumnSelect(separator, columnGapStr){
 					for(c=0; c<columnText.length; c++){
 						//add required padding to the text in this column
 						if(columnText[c].length < maxLen[c]){
-							columnText[c] += Array(maxLen[c] - columnText[c].length + 1).join("\u00a0");
+							columnText[c] += Array(maxLen[c] - HTMLToText(columnText[c]).length + 1).join("\u00a0");
 						}
 						if(c < columnText.length-1){	//not the last column
 							//add columnGapStr to this column
@@ -85,4 +86,5 @@ function multiColumnSelect(separator, columnGapStr){
 			})();
 		}
 	}
+	
 }

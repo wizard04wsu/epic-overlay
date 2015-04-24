@@ -24,6 +24,7 @@ $listType; $listLabels; $listPatterns;
 	<title>Epic Overlay YouTube player configuration</title>
 	
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+	<script type="text/javascript" src="inc/htmlEncode.js"></script>
 	
 	<style type="text/css" media="all">
 		body {
@@ -78,7 +79,7 @@ else{
 	<div class="fillWidth">
 		<div>
 			<div><label for="title">Title</label></div>
-			<div><input type="text" id="title" pattern=".+" value="<?php echo htmlspecialchars($title); ?>"></div>
+			<div><input type="text" id="title" pattern=".+" value="<?php echo $title; ?>"></div>
 		</div>
 		<div>
 			<div><label for="listType">List Type</label></div>
@@ -93,7 +94,7 @@ else{
 		</div>
 		<div>
 			<div><label for="list"><span id="listLabel"><?php echo $listLabels[$listType]; ?></span></label></div>
-			<div><input type="text" id="list" <?php echo $listPatterns[$listType] ? 'pattern="'.$listPatterns[$listType].'"' : ''?> value="<?php echo htmlspecialchars($settingsArr['list']); ?>"></div>
+			<div><input type="text" id="list" <?php echo $listPatterns[$listType] ? 'pattern="'.$listPatterns[$listType].'"' : ''?> value="<?php echo $settingsArr['list']; ?>"></div>
 		</div>
 	</div>
 	
@@ -103,7 +104,7 @@ else{
 	</p>
 	
 	<p>
-	<label>Initial Volume <input type="range" id="volume" max="100" min="0" step="1" value="<?php echo htmlspecialchars($settingsArr['volume']); ?>"> <span id="volumeNum"><?php echo htmlspecialchars($settingsArr['volume']); ?></span></label>
+	<label>Initial Volume <input type="range" id="volume" max="100" min="0" step="1" value="<?php echo $settingsArr['volume']; ?>"> <span id="volumeNum"><?php echo $settingsArr['volume']; ?></span></label>
 	</p>
 	
 	<p style="margin-bottom:0;">
@@ -206,7 +207,7 @@ else{
 				data: {
 					instance: instance,
 					action: "saveInstance",
-					title: i_title.value,
+					title: textToHTML(i_title.value),
 					settings: JSON.stringify(newSettings)
 				}
 			}).done(function(content, message, xhr) {

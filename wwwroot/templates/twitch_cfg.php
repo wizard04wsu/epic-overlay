@@ -31,6 +31,7 @@ if(!$errMsg){
 	<title>Epic Overlay: Twitch player configuration</title>
 	
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+	<script type="text/javascript" src="inc/htmlEncode.js"></script>
 	
 	<style type="text/css" media="all">
 		body {
@@ -82,7 +83,7 @@ else{
 	<div class="fillWidth">
 		<div>
 			<div><label for="title">Title</label></div>
-			<div><input type="text" id="title" pattern=".+" value="<?php echo htmlspecialchars($title); ?>"></div>
+			<div><input type="text" id="title" pattern=".+" value="<?php echo $title; ?>"></div>
 		</div>
 		<div>
 			<div><label for="url">URL</label></div>
@@ -90,7 +91,7 @@ else{
 		</div>
 		<div>
 			<div><label for="channel">Channel</label></div>
-			<div><input type="text" id="channel" pattern=" *[a-zA-Z_]+ *" value="<?php echo htmlspecialchars($settingsArr['channel']); ?>"></div>
+			<div><input type="text" id="channel" pattern=" *[a-zA-Z_]+ *" value="<?php echo $settingsArr['channel']; ?>"></div>
 		</div>
 	<!--</div>
 	<p>
@@ -99,7 +100,7 @@ else{
 	<div class="fillWidth">-->
 		<div>
 			<div><label for="video">Video ID</label></div>
-			<div><input type="text" id="video" pattern=" *[a-zA-Z0-9]* *" value="<?php echo htmlspecialchars($settingsArr['video']); ?>"></div>
+			<div><input type="text" id="video" pattern=" *[a-zA-Z0-9]* *" value="<?php echo $settingsArr['video']; ?>"></div>
 		</div>
 	</div>
 	
@@ -208,7 +209,7 @@ else{
 				data: {
 					instance: instance,
 					action: "saveInstance",
-					title: i_title.value,
+					title: textToHTML(i_title.value),
 					settings: JSON.stringify(newSettings)
 				}
 			}).done(function(content, message, xhr) {
