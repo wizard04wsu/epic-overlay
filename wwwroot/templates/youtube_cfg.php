@@ -24,7 +24,7 @@ $listType; $listLabels; $listPatterns;
 	<title>Epic Overlay YouTube player configuration</title>
 	
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
-	<script type="text/javascript" src="inc/htmlEncode.js"></script>
+	<script type="text/javascript" src="../inc/htmlEncode.js"></script>
 	
 	<style type="text/css" media="all">
 		body {
@@ -104,7 +104,7 @@ else{
 	</p>
 	
 	<p>
-	<label>Initial Volume <input type="range" id="volume" max="100" min="0" step="1" value="<?php echo $settingsArr['volume']; ?>"> <span id="volumeNum"><?php echo $settingsArr['volume']; ?></span></label>
+	<label>Initial Volume <input type="range" id="volume" max="100" min="0" step="1" value="<?php echo $settingsArr['volume']; ?>"> <span id="volumeNum"><?php echo $settingsArr['volume']; ?></span>%</label>
 	</p>
 	
 	<p style="margin-bottom:0;">
@@ -136,7 +136,7 @@ else{
 		
 		function updateSaveBtn(){
 			
-			if(i_title.value == instanceTitle && i_listType.value == settings.listType && i_list.value == settings.list
+			if(i_title.value == HTMLToText(instanceTitle) && i_listType.value == settings.listType && i_list.value == settings.list
 			 && i_shuffle.checked == settings.shuffle && i_loop.checked == settings.loop
 			 && i_volume.value == settings.volume){
 				//all settings are the same as they were when the page loaded
@@ -150,6 +150,7 @@ else{
 				//one or more changes have been made
 				btn_save.disabled = false;
 			}
+			console.log(btn_save.disabled);
 		}
 		
 		function listTypeChange(){
@@ -236,7 +237,7 @@ else{
 		
 		function cancel(){
 			//location.reload(true);
-			i_title.value = instanceTitle;
+			i_title.value = HTMLToText(instanceTitle);
 			listValue = { playlist:"", video_list:"", user_uploads:"", search:"" }
 			i_list.value = "";
 			i_listType.value = settings.listType;
@@ -245,6 +246,9 @@ else{
 			i_shuffle.checked = settings.shuffle;
 			i_loop.checked = settings.loop;
 			i_volume.value = settings.volume;
+			document.getElementById("volumeNum").innerHTML = i_volume.value;
+			
+			updateSaveBtn();
 		}
 	</script>
 <?php

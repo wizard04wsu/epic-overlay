@@ -43,7 +43,6 @@ function multiColumnSelect(separator, columnGapStr){
 					for(c=0; c<columnText.length; c++){
 						//remove extra spaces
 						columnText[c] = columnText[c].replace(/\s+/g, " ").trim();
-						console.log(columnText[c]);
 						//update the maximum string length in this column
 						if(HTMLToText(columnText[c]).length > (maxLen[c] || 0)){
 							maxLen[c] = HTMLToText(columnText[c]).length;

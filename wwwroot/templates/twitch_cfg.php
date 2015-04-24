@@ -31,7 +31,7 @@ if(!$errMsg){
 	<title>Epic Overlay: Twitch player configuration</title>
 	
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
-	<script type="text/javascript" src="inc/htmlEncode.js"></script>
+	<script type="text/javascript" src="../inc/htmlEncode.js"></script>
 	
 	<style type="text/css" media="all">
 		body {
@@ -105,7 +105,7 @@ else{
 	</div>
 	
 	<p>
-	<label>Initial Volume <input type="range" id="volume" max="100" min="0" step="1" value="<?php echo $volume; ?>"> <span id="volumeNum"><?php echo $volume; ?></span></label>
+	<label>Initial Volume <input type="range" id="volume" max="100" min="0" step="1" value="<?php echo $volume; ?>"> <span id="volumeNum"><?php echo $volume; ?></span>%</label>
 	</p>
 	
 	<p style="margin-bottom:0;">
@@ -160,7 +160,7 @@ else{
 		
 		function updateSaveBtn(){
 			
-			if(i_title.value == instanceTitle && i_channel.value == settings.channel && i_video.value == settings.video && i_volume.value == settings.volume){
+			if(i_title.value == HTMLToText(instanceTitle) && i_channel.value == settings.channel && i_video.value == settings.video && i_volume.value == settings.volume){
 				//all settings are the same as they were when the page loaded
 				btn_save.disabled = true;
 			}
@@ -238,10 +238,13 @@ else{
 		
 		function cancel(){
 			//location.reload(true);
-			i_title.value = instanceTitle;
+			i_title.value = HTMLToText(instanceTitle);
 			i_channel.value = settings.channel;
 			i_video.value = settings.video;
 			i_volume.value = settings.volume;
+			document.getElementById("volumeNum").innerHTML = i_volume.value;
+			
+			updateSaveBtn();
 		}
 	</script>
 <?php
