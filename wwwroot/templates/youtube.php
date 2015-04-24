@@ -31,6 +31,7 @@ require '_getSettings.php';
 		}
 	</style>
 	
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
 	<script type="text/javascript">
 		
 		var settings = <?php echo $settingsJson; ?>;
@@ -162,6 +163,41 @@ require '_getSettings.php';
 			
 		}
 		
+        setTimeout(checkForChanges, 10000);
+        
+        function checkForChanges(){
+            //use jQuery to check for changes to the instance's settings
+			$.ajax({
+				url: '../checkForChanges.php',
+				method: 'GET',
+				data: {
+					instance: <?php echo json_encode($instance); ?>,
+					timestamp: <?php echo json_encode($modified); ?>
+				}
+			}).done(function(content, message, xhr) {
+				
+                if(xhr.status == 204){
+                    //success; no changes
+                 }
+                else if(xhr.status == 205){
+                    //success; there are changes
+                    //reload the page
+                    window.location.reload(true);
+                }
+                else{
+                    //error returned
+					//ignore it
+				}
+                
+                setTimeout(checkForChanges, 10000);
+				
+			}).fail(function(xhr, message, errorThrown) {
+				//generic error
+				//ignore it
+                setTimeout(checkForChanges, 10000);
+			})
+        }
+        
 	</script>
 	
 </head>
