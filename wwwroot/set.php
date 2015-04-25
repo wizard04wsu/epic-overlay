@@ -123,14 +123,16 @@ else if($_POST['action'] == 'createInstance'){
 			}
 			else{
 				
+                $modified = date('n/j/Y g:i:s A');
+                
 				$db = new COM('ADODB.Connection');
 				$db->Open("Provider=Microsoft.ACE.OLEDB.12.0; Data Source=$dbPath");
 				
 				$cmd = new COM('ADODB.Command');
 				$cmd->ActiveConnection = $db;
-				$cmd->CommandText = 'INSERT INTO Instance (Title, Template, Settings) VALUES (?, ?, ?)';
+				$cmd->CommandText = 'INSERT INTO Instance (Title, Template, Settings, Modified) VALUES (?, ?, ?)';
 				$cmd->CommandType = 1;	//adCmdText
-				$cmd->Execute($_, array($_POST['title'], $_POST['template'], $settingsJson));
+				$cmd->Execute($_, array($_POST['title'], $_POST['template'], $settingsJson, $modified));
 				
 				//get the newly created instance ID
 				$rst = new COM('ADODB.Recordset');
