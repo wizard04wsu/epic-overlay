@@ -130,7 +130,7 @@ else if($_POST['action'] == 'createInstance'){
 				
 				$cmd = new COM('ADODB.Command');
 				$cmd->ActiveConnection = $db;
-				$cmd->CommandText = 'INSERT INTO Instance (Title, Template, Settings, Modified) VALUES (?, ?, ?)';
+				$cmd->CommandText = 'INSERT INTO Instance (Title, Template, Settings, Modified) VALUES (?, ?, ?, ?)';
 				$cmd->CommandType = 1;	//adCmdText
 				$cmd->Execute($_, array($_POST['title'], $_POST['template'], $settingsJson, $modified));
 				
