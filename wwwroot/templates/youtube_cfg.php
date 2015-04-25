@@ -150,7 +150,6 @@ else{
 				//one or more changes have been made
 				btn_save.disabled = false;
 			}
-			console.log(btn_save.disabled);
 		}
 		
 		function listTypeChange(){

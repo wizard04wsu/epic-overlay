@@ -91,7 +91,7 @@ else{
 		</div>
 		<div>
 			<div><label for="channel">Channel</label></div>
-			<div><input type="text" id="channel" pattern=" *[a-zA-Z_]+ *" value="<?php echo $settingsArr['channel']; ?>"></div>
+			<div><input type="text" id="channel" pattern=" *[a-zA-Z0-9_]+ *" value="<?php echo $settingsArr['channel']; ?>"></div>
 		</div>
 	<!--</div>
 	<p>
