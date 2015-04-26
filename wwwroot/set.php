@@ -10,7 +10,7 @@ $errMsg = '';
 $settingsArr; $settingsJson = '';
 $instance;
 /*$dbPath;*/ $db; $cmd; $sql; $rst;
-$id; $title;
+$id; $title; $modified;
 
 if(empty($_POST['action'])){
 	$errMsg = 'Action not specified.';
@@ -33,29 +33,31 @@ else if($_POST['action'] == 'saveInstance'){
 		}
 		else{
 			
-			$instance = intval($_POST['instance']);
-			$title = htmlspecialchars(''.$_POST['title'], ENT_QUOTES | ENT_HTML5, 'UTF-8', false);
-			
-			//html encode the settings values
-			foreach($settingsArr as &$value){
-				$value = htmlspecialchars($value, ENT_QUOTES | ENT_HTML5, 'UTF-8', false);
-			}
-			$settingsJson = json_encode($settingsArr);
-			
 			require 'inc/dbPath.php';
 			if(!file_exists($dbPath)){
 				$errMsg = 'Could not find the database file.';
 			}
 			else{
 				
+				$instance = intval($_POST['instance']);
+				$title = htmlspecialchars(''.$_POST['title'], ENT_QUOTES | ENT_HTML5, 'UTF-8', false);
+				
+				//html encode the settings values
+				foreach($settingsArr as &$value){
+					$value = htmlspecialchars($value, ENT_QUOTES | ENT_HTML5, 'UTF-8', false);
+				}
+				$settingsJson = json_encode($settingsArr);
+				
+				$modified = date('n/j/Y g:i:s A');
+				
 				$db = new COM('ADODB.Connection');
 				$db->Open("Provider=Microsoft.ACE.OLEDB.12.0; Data Source=$dbPath");
 				
 				$cmd = new COM('ADODB.Command');
 				$cmd->ActiveConnection = $db;
-				$cmd->CommandText = 'UPDATE Instance SET Title = ?, Settings = ? WHERE ID = ?';
+				$cmd->CommandText = 'UPDATE Instance SET Title = ?, Settings = ?, Modified = ? WHERE ID = ?';
 				$cmd->CommandType = 1;	//adCmdText
-				$cmd->Execute($_, array($title, $settingsJson, $instance));
+				$cmd->Execute($_, array($title, $settingsJson, $modified, $instance));
 				
 				$db->Close();
 				
@@ -121,14 +123,16 @@ else if($_POST['action'] == 'createInstance'){
 			}
 			else{
 				
+                $modified = date('n/j/Y g:i:s A');
+                
 				$db = new COM('ADODB.Connection');
 				$db->Open("Provider=Microsoft.ACE.OLEDB.12.0; Data Source=$dbPath");
 				
 				$cmd = new COM('ADODB.Command');
 				$cmd->ActiveConnection = $db;
-				$cmd->CommandText = 'INSERT INTO Instance (Title, Template, Settings) VALUES (?, ?, ?)';
+				$cmd->CommandText = 'INSERT INTO Instance (Title, Template, Settings, Modified) VALUES (?, ?, ?, ?)';
 				$cmd->CommandType = 1;	//adCmdText
-				$cmd->Execute($_, array($_POST['title'], $_POST['template'], $settingsJson));
+				$cmd->Execute($_, array($_POST['title'], $_POST['template'], $settingsJson, $modified));
 				
 				//get the newly created instance ID
 				$rst = new COM('ADODB.Recordset');
