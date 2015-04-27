@@ -4,12 +4,10 @@ error_reporting(E_ALL);
 
 header("Cache-Control: no-store, no-cache, max-age=0");
 header("Expires: -1");
-?><!DOCTYPE html>
-<?php
+
 //declare variables (just for my sanity)
 $errMsg = '';
 /*$dbPath;*/ $db; $sql; $rst;
-$settingsArr; $key; $value;
 $templateArr; $templateJson;
 $instanceArr; $instanceJson;
 
@@ -24,7 +22,8 @@ else{
 	$db->Open("Provider=Microsoft.ACE.OLEDB.12.0; Data Source=$dbPath");
 }
 	
-?>
+?><!DOCTYPE html>
+
 <html>
 <head>
 	
@@ -34,7 +33,7 @@ else{
 	
 	<link rel="stylesheet" media="all" href="inc/overlayConfig.css">
 	
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
 	<script type="text/javascript" src="inc/jquery.sortElements.js"></script>	<!-- https://github.com/padolsey-archive/jquery.fn/tree/master/sortElements -->
 	<script type="text/javascript" src="inc/htmlEncode.js"></script>
 	<script type="text/javascript" src="inc/multiColumnSelect.js"></script>
@@ -60,6 +59,7 @@ else{
 		<p>
 		<select id="templates" size="7">
 <?php
+		//get the list of templates from the database
 		$templateArr = array();
 		$sql = "SELECT * FROM Template ORDER BY Title";
 		$rst = $db->Execute($sql);
@@ -108,6 +108,7 @@ else{
 		<select id="instances" class="multiColumnSelect" size="8">
 			<optgroup label="Title\Template"></optgroup>
 <?php
+		//get the list of instances from the database
 		$instanceArr = array();
 		$sql = "SELECT Instance.ID, Instance.Title, Template.ID AS TemplateID, Template.Title AS TemplateTitle, Template.Path, Template.Config FROM Instance INNER JOIN Template ON Instance.Template = Template.ID ORDER BY Instance.Title, Template.Title";
 		$rst = $db->Execute($sql);
@@ -135,6 +136,7 @@ else{
 	
 	</div>
 <?php
+		//close the database connection
 		$rst->Close();
 		$db->Close();
 	}

@@ -8,7 +8,7 @@ $_;	//placeholder variable (need a variable to pass to $cmd->Execute(), but I do
 $title = ''; $settingsJson; $settinsArr; $modified;
 
 
-if(empty($_GET['instance']) || !intval($_GET['instance'])){
+if(empty($_GET['instance']) || !intval($_GET['instance'])){	//invalid instance ID
 	$errMsg = 'Instance number is not specified.';
 }
 else{
@@ -21,9 +21,9 @@ else{
 		$errMsg = 'Could not find the database file.';
 	}
 	else{
-		
 		$db = new COM('ADODB.Connection');
 		$db->Open("Provider=Microsoft.ACE.OLEDB.12.0; Data Source=$dbPath");
+		
 		
 		//make sure the instance number corresponds to an instance of this template
 		$cmd = new COM('ADODB.Command');
@@ -34,7 +34,6 @@ else{
 		$pathParts = explode('/', $_SERVER['URL']);
 		$rst = $cmd->Execute($_, array($pathParts[count($pathParts)-1], $instance));
 		
-		
 		if($rst->EOF){
 			$errMsg = 'Specified instance does not use this template.';
 		}
@@ -42,21 +41,13 @@ else{
 			$title = ''.$rst['Title'];
 			$modified = ''.$rst['Modified'];
 			$settingsJson = ''.$rst['Settings'];
-			
-			/*
-			//make sure it's valid JSON
-			$settingsArr = json_decode($settingsJson, true);
-			if($settingsJson != json_encode($settingsArr)){
-				$errMsg = 'Settings are malformed.';
-				$settingsJson = '{}';
-			}
-			*/
 			$settingsArr = json_decode($settingsJson, true);
 		}
 		
+		
+		//close the database connection
 		$rst->Close();
 		$db->Close();
-		
 	}
 	
 }

@@ -5,6 +5,7 @@ error_reporting(E_ALL);
 header("Cache-Control: no-store, no-cache, max-age=0");
 header("Expires: -1");
 
+
 require '_getSettings.php';
 
 $volume; $video;
@@ -52,7 +53,10 @@ if(!$errMsg){
 		}
 	</style>
     
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+	<script type="text/javascript">
+		var UPDATE_INTERVAL = 10000;	//milliseconds
+	</script>
 	
 </head>
 <body>
@@ -83,22 +87,32 @@ else{
 	<div id="clear"></div>
 	
 	<script type="text/javascript">
-		var timer, clear = document.getElementById("clear");
+		var timer,
+			clear = document.getElementById("clear");	//transparent div overlaying the video to detect mousemove events
+		
+		//add event handlers
 		clear.addEventListener("mousemove", showControls, false);
+		
 		function showControls(evt){
+			clearTimeout(timer);
+			
+			//display the controls bar and remove the transparent overlay
 			document.body.style.bottom = 0;
 			clear.style.display = "none";
+			
+			//in 3 seconds, hide the controls bar
 			timer = setTimeout(hideControls, 3000);
 		}
 		function hideControls(evt){
+			//hide the controls bar and restore the transparent overlay
 			document.body.style.bottom = "";
 			clear.style.display = "";
 		}
 		
-        setTimeout(checkForChanges, 10000);
+        setTimeout(checkForChanges, UPDATE_INTERVAL);
         
         function checkForChanges(){
-            //use jQuery to check for changes to the instance's settings
+            //check for changes to the instance's settings
 			$.ajax({
 				url: '../checkForChanges.php',
 				method: 'GET',
@@ -121,12 +135,12 @@ else{
 					//ignore it
 				}
                 
-                setTimeout(checkForChanges, 10000);
+                setTimeout(checkForChanges, UPDATE_INTERVAL);
 				
 			}).fail(function(xhr, message, errorThrown) {
 				//generic error
 				//ignore it
-                setTimeout(checkForChanges, 10000);
+                setTimeout(checkForChanges, UPDATE_INTERVAL);
 			})
         }
 	</script>

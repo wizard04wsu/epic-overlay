@@ -5,6 +5,7 @@ error_reporting(E_ALL);
 header("Cache-Control: no-store, no-cache, max-age=0");
 header("Expires: -1");
 
+
 if(@$_POST['getDefaults']){
 	//respond with the default settings for this template
 	exit('{}');
@@ -27,7 +28,7 @@ if(!$errMsg){
 	
 	<title>Epic Overlay: player configuration</title>
 	
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
 	<script type="text/javascript" src="../inc/htmlEncode.js"></script>
 	
 	<style type="text/css" media="all">
@@ -92,6 +93,7 @@ else{
 	<script type="text/javascript">
 		var i_title, btn_save, btn_cancel;
 		
+		//add event handlers
 		(i_title = document.getElementById("title")).addEventListener("input", updateSaveBtn, false);
 		i_title.addEventListener("change", updateSaveBtn, false);	//for IE
 		
@@ -125,7 +127,7 @@ else{
 			//TODO: display some "waiting" indicator
 			
 			
-			//use jQuery to post the changes
+			//post the changes
 			$.ajax({
 				url: '../set.php',
 				method: 'POST',
@@ -138,7 +140,6 @@ else{
 			}).done(function(content, message, xhr) {
 				
 				if (205 !== xhr.status) {	//error returned
-					
 					//display the error message
 					alert("Failed to save settings:\n\n"+content);
 					
@@ -147,7 +148,6 @@ else{
 					updateSaveBtn();
 					
 					return;
-					
 				}
 				
 				//success; reload the settings page
@@ -160,6 +160,7 @@ else{
 		}
 		
 		function cancel(){
+			//reset the fields to the existing values
 			i_title.value = HTMLToText(instanceTitle);
 			
 			updateSaveBtn();
