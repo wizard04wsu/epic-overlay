@@ -8,7 +8,7 @@ header("Expires: -1");
 
 if(@$_POST['getDefaults']){
 	//respond with the default settings for this template
-	exit('{"listType":"playlist","list":"","shuffle":"yes","loop":"yes","volume":"100"}');
+	exit('{"listType":"playlist","list":"","shuffle":"1","loop":"1","volume":"100","displayChannelName":"","API_key":""}');
 }
 
 require '_getSettings_cfg.php';
@@ -109,12 +109,22 @@ else{
 	</p>
 	
 	<p style="margin-bottom:0;">
+	<label><input type="checkbox" id="channelName" <?php echo $settingsArr['displayChannelName'] ? 'checked' : ''; ?>> Display Channel Name</label><br>
+	</p>
+	<div class="fillWidth">
+		<div>
+			<div><label for="API_key" style="margin-left:1.5em">Your <a href="https://developers.google.com/youtube/registering_an_application" target="_blank">API Key</a></label></div>
+			<div><input type="text" id="API_key" pattern=" *[0-9a-zA-Z_-]+ *" value="<?php echo ''.$settingsArr['API_key'] ?>"></div>
+		</div>
+	</div>
+	
+	<p style="margin-bottom:0;">
 	<!-- save button must have id="save" so overlayConfig.php can find it -->
 	<input type="submit" id="save" value="Save" disabled> <input type="button" id="cancel" value="Cancel">
 	</p>
 	
 	<script type="text/javascript">
-		var i_title, i_listType, i_list, i_shuffle, i_loop, i_volume, btn_save, btn_cancel,
+		var i_title, i_listType, i_list, i_shuffle, i_loop, i_volume, i_channel, i_key, btn_save, btn_cancel,
 			listType = settings.listType,
 			listValue = { playlist:"", video_list:"", user_uploads:"", search:"" },
 			listLabels = { playlist:"Playlist ID", video_list:"Video IDs (comma-separated)", user_uploads:"User Name", search:"Search Query" },
@@ -134,18 +144,24 @@ else{
 		(i_volume = document.getElementById("volume")).addEventListener("input", volumeChange, false);
 		i_volume.addEventListener("change", volumeChange, false);	//for IE
 		(btn_save = document.getElementById("save")).addEventListener("click", save, false);
-		(btn_cancel = document.getElementById("cancel")).addEventListener("click", cancel, false);;
+		(btn_cancel = document.getElementById("cancel")).addEventListener("click", cancel, false);
+		(i_channel = document.getElementById("channelName")).addEventListener("change", updateSaveBtn, false);
+		(i_key = document.getElementById("API_key")).addEventListener("input", updateSaveBtn, false);
+		i_key.addEventListener("change", updateSaveBtn, false);	//for IE
 		
 		function updateSaveBtn(){
 			
 			if(i_title.value == HTMLToText(instanceTitle) && i_listType.value == settings.listType && i_list.value == settings.list
 			 && i_shuffle.checked == settings.shuffle && i_loop.checked == settings.loop
-			 && i_volume.value == settings.volume){
+			 && i_volume.value == settings.volume && i_channel.checked == settings.displayChannelName && i_key == settings.API_key){
 				//all settings are the same as they were when the page loaded
 				btn_save.disabled = true;
 			}
 			else if(!i_title.validity.valid || !i_list.validity.valid){
 				//list text box has an invalid value
+				btn_save.disabled = true;
+			}
+			else if(i_channel.checked && !i_key.value){
 				btn_save.disabled = true;
 			}
 			else{
@@ -191,7 +207,9 @@ else{
 					list: i_list.value.trim(),
 					shuffle: i_shuffle.checked,
 					loop: i_loop.checked,
-					volume: volume
+					volume: volume,
+					displayChannelName: i_channel.checked,
+					API_key: i_key.value.trim()
 				};
 			
 			if(newSettings.listType == "video_list"){
@@ -200,7 +218,7 @@ else{
 			
 			//disable the form fields
 			btn_save.disabled = true;
-			i_title.disabled = i_listType.disabled = i_list.disabled = i_shuffle.disabled = i_loop.disabled = i_volume.disabled, btn_cancel.disabled = true;
+			i_title.disabled = i_listType.disabled = i_list.disabled = i_shuffle.disabled = i_loop.disabled = i_volume.disabled = i_channel.disabled = i_key.disabled = btn_cancel.disabled = true;
 			//TODO: display some "waiting" indicator
 			
 			
@@ -221,7 +239,7 @@ else{
 					alert("Failed to save settings:\n\n"+content);
 					
 					//re-enable the form fields
-					i_title.disabled = i_listType.disabled = i_list.disabled = i_shuffle.disabled = i_loop.disabled = i_volume.disabled, btn_cancel.disabled = false;
+					i_title.disabled = i_listType.disabled = i_list.disabled = i_shuffle.disabled = i_loop.disabled = i_volume.disabled = i_channel.disabled = i_key.disabled = btn_cancel.disabled = false;
 					updateSaveBtn();
 					
 					return;
@@ -248,6 +266,8 @@ else{
 			i_loop.checked = settings.loop;
 			i_volume.value = settings.volume;
 			document.getElementById("volumeNum").innerHTML = i_volume.value;
+			i_channel.checked = settings.displayChannelName;
+			i_key.value = settings.API_key;
 			
 			updateSaveBtn();
 		}

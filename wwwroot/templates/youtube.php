@@ -30,6 +30,27 @@ require '_getSettings.php';
 		#ytplayer {
 			display: block;
 		}
+		#channelName {
+			position:absolute;
+			left:0;
+			right:0;
+			z-index:1;
+			color:#F00;
+			text-shadow:
+				2px 2px 1px #FFF,
+				2px -2px 1px #FFF,
+				-2px -2px 1px #FFF,
+				-2px 2px 1px #FFF,
+				0 2px 1px #FFF,
+				2px 0 1px #FFF,
+				0 -2px 1px #FFF,
+				-2px 0 1px #FFF;
+			text-align:center;
+			padding-top:1em;
+			font-family:sans-serif;
+			font-size:2em;
+			font-weight:bold;
+		}
 	</style>
 	
 	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
@@ -120,6 +141,8 @@ require '_getSettings.php';
 						
 						isPlaying = true;	//when this video ends, play a different one
 						
+						updateChannelName(player.getVideoUrl());
+						
 					}
 					
 					//Video has ended
@@ -158,6 +181,36 @@ require '_getSettings.php';
 					}
 					
 					return array;
+				}
+				
+				//get the channel name of the currently playing video and update the display
+				function updateChannelName(videoUrl){
+					var videoID, channelDiv;
+					
+					if(!settings.displayChannelName || !settings.API_key) return;
+					
+					videoID = (/(?:^|&)v=([^&]+)/).exec(videoUrl.replace(/^[^?]*\?/, ''))[1];
+					channelDiv = document.getElementById('channelName');
+					
+					$.ajax({
+						url: 'https://www.googleapis.com/youtube/v3/videos?part=snippet&id='+videoID+'&key='+settings.API_key,
+						method: 'GET'
+					}).done(function(content, message, xhr) {
+						
+						if(xhr.status != 200){
+							//error returned
+							console.log('response', xhr.status, message);
+							channelDiv.innerHTML = '';
+							return;
+						}
+						
+						channelDiv.innerHTML = content.items[0].snippet.channelTitle;
+						
+					}).fail(function(xhr, message, errorThrown) {
+						//generic error
+						console.log('error', errorThrown);
+						channelDiv.innerHTML = '';
+					})
 				}
 				
 			}
@@ -209,6 +262,7 @@ if($errMsg){
 }
 else{
 ?>
+	<div id="channelName"></div>
 	<!-- The <iframe> with the video player will replace this <div>. -->
 	<div id="ytplayer"></div>
 	<script type="text/javascript">
