@@ -5,6 +5,7 @@ error_reporting(E_ALL);
 header("Cache-Control: no-store, no-cache, max-age=0");
 header("Expires: -1");
 
+
 if(@$_POST['getDefaults']){
 	//respond with the default settings for this template
 	exit('{"channel":"","video":"","volume":"100"}');
@@ -29,9 +30,6 @@ if(!$errMsg){
 	<meta charset="UTF-8">
 	
 	<title>Epic Overlay: Twitch player configuration</title>
-	
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
-	<script type="text/javascript" src="../inc/htmlEncode.js"></script>
 	
 	<style type="text/css" media="all">
 		body {
@@ -63,6 +61,9 @@ if(!$errMsg){
 			width:100%;
 		}
 	</style>
+	
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+	<script type="text/javascript" src="../inc/htmlEncode.js"></script>
 	
 </head>
 <body>
@@ -116,6 +117,7 @@ else{
 	<script type="text/javascript">
 		var i_title, i_url, i_channel, i_video, i_volume, btn_save, btn_cancel;
 		
+		//add event handlers
 		(i_title = document.getElementById("title")).addEventListener("input", updateSaveBtn, false);
 		i_title.addEventListener("change", updateSaveBtn, false);	//for IE
 		(i_url = document.getElementById("url")).addEventListener("input", populateIDs, false);
@@ -129,14 +131,18 @@ else{
 		(btn_save = document.getElementById("save")).addEventListener("click", save, false);
 		(btn_cancel = document.getElementById("cancel")).addEventListener("click", cancel, false);;
 		
+		//extracts the channel and video IDs from a Twitch URL, or resets them to the existing values
 		function populateIDs(){
 			
 			var rxp = /^(?:https?:\/\/)?(?:www\.)?twitch\.tv\/([a-z0-9_]+)(?:\/([cv])\/(\d+))?\/?$/i,
 				m;
 			
-			if(i_url.value){
+			if(i_url.value){	//user has entered a URL
+				
+				//disable the channel ID & video ID fields
 				i_channel.disabled = i_video.disabled = true;
 				
+				//extract the channel & video IDs and populate the fields
 				m = rxp.exec(i_url.value);
 				if(m){
 					i_channel.value = m[1];
@@ -146,12 +152,17 @@ else{
 					i_channel.value = "";
 					i_video.value = "";
 				}
+				
 			}
 			else{
+				
+				//reset the channel ID & video ID fields to the existing values
 				i_channel.value = settings.channel;
 				i_video.value = settings.video;
 				
+				//enable the fields
 				i_channel.disabled = i_video.disabled = false;
+				
 			}
 			
 			updateSaveBtn();
@@ -202,7 +213,7 @@ else{
 			//TODO: display some "waiting" indicator
 			
 			
-			//use jQuery to post the changes
+			//post the changes
 			$.ajax({
 				url: '../set.php',
 				method: 'POST',
@@ -215,7 +226,6 @@ else{
 			}).done(function(content, message, xhr) {
 				
 				if (205 !== xhr.status) {	//error returned
-					
 					//display the error message
 					alert("Failed to save settings:\n\n"+content);
 					
@@ -224,7 +234,6 @@ else{
 					updateSaveBtn();
 					
 					return;
-					
 				}
 				
 				//success; reload the settings page
@@ -237,7 +246,7 @@ else{
 		}
 		
 		function cancel(){
-			//location.reload(true);
+			//reset the fields to the existing values
 			i_title.value = HTMLToText(instanceTitle);
 			i_channel.value = settings.channel;
 			i_video.value = settings.video;

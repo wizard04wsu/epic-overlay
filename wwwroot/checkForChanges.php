@@ -5,19 +5,21 @@ error_reporting(E_ALL);
 header("Cache-Control: no-store, no-cache, max-age=0");
 header("Expires: -1");
 
+
 //declare variables (just for my sanity)
 $errMsg = '';
 $instance;
 /*$dbPath;*/ $db; $cmd; $sql; $rst;
 $timestamp = ''; $modified;
 
-if(empty($_GET['instance']) || !intval($_GET['instance'])){
+if(empty($_GET['instance']) || !intval($_GET['instance'])){	//invalid instance ID provided
 	$errMsg = 'Instance number is not specified.';
 }
 else{
 	
 	$instance = intval($_GET['instance']);
 	
+	//get the timestamp if provided
 	if(!empty($_GET['timestamp'])){
 		$timestamp = $_GET['timestamp'];
 	}
@@ -28,18 +30,16 @@ else{
 		$errMsg = 'Could not find the database file.';
 	}
 	else{
-		
 		$db = new COM('ADODB.Connection');
 		$db->Open("Provider=Microsoft.ACE.OLEDB.12.0; Data Source=$dbPath");
 		
-		//make sure the instance number corresponds to an instance of this template
+		
+		//get the modification timestamp from the database
 		$cmd = new COM('ADODB.Command');
 		$cmd->ActiveConnection = $db;
 		$cmd->CommandText = 'SELECT Modified FROM Instance WHERE Instance.ID = ?';
 		$cmd->CommandType = 1;	//adCmdText
-		$pathParts = explode('/', $_SERVER['URL']);
 		$rst = $cmd->Execute($_, array($instance));
-		
 		
 		if($rst->EOF){
 			$errMsg = 'Specified instance does not exist.';
@@ -48,9 +48,10 @@ else{
 			$modified = ''.$rst['Modified'];
 		}
 		
+		
+		//close the database connection
 		$rst->Close();
 		$db->Close();
-		
 	}
 	
 }
