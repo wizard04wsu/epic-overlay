@@ -5,6 +5,7 @@ error_reporting(E_ALL);
 header("Cache-Control: no-store, no-cache, max-age=0");
 header("Expires: -1");
 
+
 if(@$_POST['getDefaults']){
 	//respond with the default settings for this template
 	exit('{"listType":"playlist","list":"","shuffle":"yes","loop":"yes","volume":"100"}');
@@ -22,9 +23,6 @@ $listType; $listLabels; $listPatterns;
 	<meta charset="UTF-8">
 	
 	<title>Epic Overlay YouTube player configuration</title>
-	
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
-	<script type="text/javascript" src="../inc/htmlEncode.js"></script>
 	
 	<style type="text/css" media="all">
 		body {
@@ -56,6 +54,9 @@ $listType; $listLabels; $listPatterns;
 			width:100%;
 		}
 	</style>
+	
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+	<script type="text/javascript" src="../inc/htmlEncode.js"></script>
 	
 </head>
 <body>
@@ -122,6 +123,7 @@ else{
 		
 		listValue[listType] = settings.list;
 		
+		//add event handlers
 		(i_title = document.getElementById("title")).addEventListener("input", updateSaveBtn, false);
 		i_title.addEventListener("change", updateSaveBtn, false);	//for IE
 		(i_listType = document.getElementById("listType")).addEventListener("change", listTypeChange, false);
@@ -161,9 +163,11 @@ else{
 			listLabel.innerHTML = listLabels[listType];
 			i_list.value = listValue[listType];
 			if(listPatterns[listType]){
+				//value must match this pattern to be valid
 				i_list.pattern = listPatterns[listType];
 			}
 			else{
+				//validity is not tested
 				i_list.removeAttribute("pattern");
 			}
 			
@@ -200,7 +204,7 @@ else{
 			//TODO: display some "waiting" indicator
 			
 			
-			//use jQuery to post the changes
+			//post the changes
 			$.ajax({
 				url: '../set.php',
 				method: 'POST',
@@ -213,7 +217,6 @@ else{
 			}).done(function(content, message, xhr) {
 				
 				if (205 !== xhr.status) {	//error returned
-					
 					//display the error message
 					alert("Failed to save settings:\n\n"+content);
 					
@@ -222,7 +225,6 @@ else{
 					updateSaveBtn();
 					
 					return;
-					
 				}
 				
 				//success; reload the settings page
@@ -235,7 +237,7 @@ else{
 		}
 		
 		function cancel(){
-			//location.reload(true);
+			//reset the fields to the existing values
 			i_title.value = HTMLToText(instanceTitle);
 			listValue = { playlist:"", video_list:"", user_uploads:"", search:"" }
 			i_list.value = "";

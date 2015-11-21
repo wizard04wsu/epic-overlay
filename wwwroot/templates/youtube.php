@@ -5,6 +5,7 @@ error_reporting(E_ALL);
 header("Cache-Control: no-store, no-cache, max-age=0");
 header("Expires: -1");
 
+
 require '_getSettings.php';
 
 ?><!DOCTYPE html>
@@ -31,14 +32,14 @@ require '_getSettings.php';
 		}
 	</style>
 	
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
 	<script type="text/javascript">
 		
-		var settings = <?php echo $settingsJson; ?>;
+		var UPDATE_INTERVAL = 10000,	//milliseconds
+			settings = <?php echo $settingsJson; ?>;
 		
 		if(settings.listType == "video_list"){
 			settings.listType = "playlist";
-			//settings.list = settings.list.split(",");
 		}
 		
 		function initPlayer(){
@@ -163,10 +164,10 @@ require '_getSettings.php';
 			
 		}
 		
-        setTimeout(checkForChanges, 10000);
+        setTimeout(checkForChanges, UPDATE_INTERVAL);
         
         function checkForChanges(){
-            //use jQuery to check for changes to the instance's settings
+            //check for changes to the instance's settings
 			$.ajax({
 				url: '../checkForChanges.php',
 				method: 'GET',
@@ -189,12 +190,12 @@ require '_getSettings.php';
 					//ignore it
 				}
                 
-                setTimeout(checkForChanges, 10000);
+                setTimeout(checkForChanges, UPDATE_INTERVAL);
 				
 			}).fail(function(xhr, message, errorThrown) {
 				//generic error
 				//ignore it
-                setTimeout(checkForChanges, 10000);
+                setTimeout(checkForChanges, UPDATE_INTERVAL);
 			})
         }
         
