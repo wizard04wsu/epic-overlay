@@ -12,6 +12,8 @@
 </head>
 <body>
 	
+	<h1 style="font-size:1.25em;">TwitchAlerts On-Demand Sample Alert</h1>
+	
 	<p>
 	<a href="http://www.twitchalerts.com/dashboard" target="_blank">Make sure you are logged into TwitchAlerts</a>
 	</p>
