@@ -15,7 +15,7 @@ require '_getSettings.php';
 	
 	<meta charset="UTF-8">
 	
-	<title><?php echo $title ? $title : 'Epic Overlay: On-demand Sample TwitchAlerts'; ?></title>
+	<title><?php echo $title ? $title : 'Epic Overlay: Sample TwitchAlerts'; ?></title>
 	
 	<style type="text/css" media="all">
 		h1 { font-size:1.5em; }
@@ -86,7 +86,7 @@ else{
 				url: "twitchAlerts_shift.php",
 				method: 'GET',
 				data: {
-					instance: <?php echo json_encode($instance); ?>
+					instance: <?php echo $instance; ?>
 				}
 			}).done(function(content, message, xhr) {
 				var o;

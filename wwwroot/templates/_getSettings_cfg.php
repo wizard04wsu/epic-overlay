@@ -21,9 +21,9 @@ else{
 		$errMsg = 'Could not find the database file.';
 	}
 	else{
+		
 		$db = new COM('ADODB.Connection');
 		$db->Open("Provider=Microsoft.ACE.OLEDB.12.0; Data Source=$dbPath");
-		
 		
 		//make sure the instance number corresponds to an instance of this template
 		$cmd = new COM('ADODB.Command');
@@ -43,10 +43,10 @@ else{
 			$settingsArr = json_decode($settingsJson, true);
 		}
 		
-		
 		//close the database connection
 		$rst->Close();
 		$db->Close();
+		
 	}
 	
 }
