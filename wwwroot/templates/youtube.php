@@ -164,10 +164,10 @@ require '_getSettings.php';
 			
 		}
 		
-        setTimeout(checkForChanges, UPDATE_INTERVAL);
-        
-        function checkForChanges(){
-            //check for changes to the instance's settings
+		setTimeout(checkForChanges, UPDATE_INTERVAL);
+		
+		function checkForChanges(){
+			//check for changes to the instance's settings
 			$.ajax({
 				url: '../checkForChanges.php',
 				method: 'GET',
@@ -177,28 +177,28 @@ require '_getSettings.php';
 				}
 			}).done(function(content, message, xhr) {
 				
-                if(xhr.status == 204){
-                    //success; no changes
-                 }
-                else if(xhr.status == 205){
-                    //success; there are changes
-                    //reload the page
-                    window.location.reload(true);
-                }
-                else{
-                    //error returned
+				if(xhr.status == 204){
+					//success; no changes
+				 }
+				else if(xhr.status == 205){
+					//success; there are changes
+					//reload the page
+					window.location.reload(true);
+				}
+				else{
+					//error returned
 					//ignore it
 				}
-                
-                setTimeout(checkForChanges, UPDATE_INTERVAL);
+				
+				setTimeout(checkForChanges, UPDATE_INTERVAL);
 				
 			}).fail(function(xhr, message, errorThrown) {
 				//generic error
 				//ignore it
-                setTimeout(checkForChanges, UPDATE_INTERVAL);
+				setTimeout(checkForChanges, UPDATE_INTERVAL);
 			})
-        }
-        
+		}
+		
 	</script>
 	
 </head>

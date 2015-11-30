@@ -5,7 +5,7 @@ $instance;
 /*$dbPath;*/ $db; $cmd; $sql; $rst;
 $pathParts;
 $_;	//placeholder variable (need a variable to pass to $cmd->Execute(), but I don't care what gets put into it)
-$title = ''; $settingsJson; $settinsArr; $modified;
+$title = ''; $settingsJson; $settingsArr; $modified;
 
 
 if(empty($_GET['instance']) || !intval($_GET['instance'])){	//invalid instance ID

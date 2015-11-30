@@ -145,8 +145,8 @@ else if($_POST['action'] == 'createInstance'){
 				
 				
 				//create a new timestamp
-                $modified = date('n/j/Y g:i:s A');
-                
+				$modified = date('n/j/Y g:i:s A');
+				
 				//add the record
 				$cmd = new COM('ADODB.Command');
 				$cmd->ActiveConnection = $db;
