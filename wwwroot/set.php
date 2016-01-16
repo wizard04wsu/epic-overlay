@@ -40,7 +40,7 @@ else if($_POST['action'] == 'saveInstance'){
 		//make sure settings is a valid JSON string
 		@$settingsJson = $_POST['settings'];
 		$settingsArr = json_decode($settingsJson, true);
-		if($settingsJson != json_encode($settingsArr)){
+		if($settingsJson != json_encode($settingsArr, JSON_UNESCAPED_SLASHES)){
 			$errMsg = 'Settings are malformed.';
 		}
 		else{
@@ -129,7 +129,7 @@ else if($_POST['action'] == 'createInstance'){
 		//make sure settings is a valid JSON string
 		@$settingsJson = $_POST['settings'];
 		$settingsArr = json_decode($settingsJson, true);
-		if($settingsJson != json_encode($settingsArr)){
+		if($settingsJson != json_encode($settingsArr, JSON_UNESCAPED_SLASHES)){
 			$errMsg = 'Settings are malformed.';
 		}
 		else{
