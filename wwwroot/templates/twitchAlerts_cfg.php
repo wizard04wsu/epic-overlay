@@ -13,9 +13,14 @@ if(@$_POST['getDefaults']){
 
 require '_getSettings_cfg.php';
 
+$greenScreenURL;
+
 if(!$errMsg){
 	
-	//
+	$greenScreenURL = "";
+	if(isset($settingsArr['greenScreen'])){
+		$greenScreenURL = $settingsArr['greenScreen'];
+	}
 	
 }
 
@@ -83,6 +88,10 @@ else{
 			<div><label for="title">Title</label></div>
 			<div><input type="text" id="title" pattern=".+" value="<?php echo $title; ?>"></div>
 		</div>
+		<div>
+			<div><label for="green">URL of green screen <small style="color:#888;">(optional)</small></label></div>
+			<div><input type="url" id="green" value="<?php echo $greenScreenURL; ?>"></div>
+		</div>
 	</div>
 	
 	<p style="margin-bottom:0;">
@@ -91,22 +100,24 @@ else{
 	</p>
 	
 	<script type="text/javascript">
-		var i_title, btn_save, btn_cancel;
+		var i_title, i_url, btn_save, btn_cancel;
 		
 		//add event handlers
 		(i_title = document.getElementById("title")).addEventListener("input", updateSaveBtn, false);
 		i_title.addEventListener("change", updateSaveBtn, false);	//for IE
+		(i_url = document.getElementById("green")).addEventListener("input", updateSaveBtn, false);
+		i_url.addEventListener("change", updateSaveBtn, false);	//for IE
 		
 		(btn_save = document.getElementById("save")).addEventListener("click", save, false);
 		(btn_cancel = document.getElementById("cancel")).addEventListener("click", cancel, false);;
 		
 		function updateSaveBtn(){
 			
-			if(i_title.value == HTMLToText(instanceTitle)){
+			if(i_title.value == HTMLToText(instanceTitle) && i_url.value == "<?php echo $greenScreenURL; ?>"){
 				//all settings are the same as they were when the page loaded
 				btn_save.disabled = true;
 			}
-			else if(!i_title.validity.valid){
+			else if(!i_title.validity.valid || !i_url.validity.valid){
 				//a text box has an invalid value
 				btn_save.disabled = true;
 			}
@@ -119,7 +130,9 @@ else{
 		function save(){
 			var newSettings;
 			
-			newSettings = {};
+			newSettings = {
+				greenScreen: i_url.value
+			};
 			
 			//disable the form fields
 			btn_save.disabled = true;

@@ -20,12 +20,15 @@ require '_getSettings.php';
 	<style type="text/css" media="all">
 		h1 { font-size:1.5em; }
 		h2 { font-size:1.25em; }
+		#log { border:1px solid #000; line-height:1.25; height:10em; overflow:scroll; }
 	</style>
 	
 	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
 	<script type="text/javascript">
 		var UPDATE_INTERVAL = 1000;	//milliseconds
 	</script>
+	<script type="text/javascript" src="../inc/htmlEncode.js"></script>
+	<script type="text/javascript" src="../inc/dimensions.js"></script>
 	
 </head>
 <body>
@@ -40,6 +43,17 @@ else{
 	<p>
 	<a href="http://www.twitchalerts.com/dashboard/alert-box-v3" target="_blank">Make sure you are logged into TwitchAlerts!</a>
 	</p>
+<?php
+if($settingsArr['greenScreen'] != ''){
+?>
+	<!-- For some reason, the green screen page doesn't run the same scripts unless it's launched from TwitchAlerts. 
+		 The background won't be green, but everything else seems to work anyway. -->
+	<p>
+	<a href="<?php echo $settingsArr['greenScreen'] ?>" target="_blank">Open green screen</a>
+	</p>
+<?php
+}
+?>
 	
 	<h2>Alert Link Generator</h2>
 	
@@ -61,6 +75,9 @@ else{
 	</p>
 	
 	<iframe id="url" style="display:none;"></iframe>
+	
+	Log:
+	<div id="log"></div>
 	
 	<script type="text/javascript">
 		
@@ -104,13 +121,13 @@ else{
 				}
 				else{
 					//display the error message
-					alert("Failed to remove alert from queue:\n\n"+content);
+					log("Failed to remove alert from queue: "+content);
 				}
 				
 				setTimeout(sendQueuedAlert, UPDATE_INTERVAL);
 			}).fail(function(xhr, message, errorThrown) {
 				//display a generic error message
-				alert("Failed to remove alert from queue:\n\n"+message+"\n\n"+errorThrown);
+				log("Failed to remove alert from queue: "+message+" : "+errorThrown);
 				
 				setTimeout(sendQueuedAlert, UPDATE_INTERVAL);
 			});
@@ -118,10 +135,14 @@ else{
 		}
 		
 		function sendAlert(type, variation){
-			var type = type || document.getElementById("genType").value,
-				variation = variation || document.getElementById("genVariation").value;
+			var u, queued = type && variation !== u;
+			
+			type = type || document.getElementById("genType").value;
+			variation = variation || document.getElementById("genVariation").value;
 			
 			iframe.src = "http://www.twitchalerts.com/service/dashboard/queue-sample-"+type+"?variation="+(variation-1);
+			
+			log((queued?"Queued":"Test")+" alert request sent: type="+type+", variation="+variation);
 		}
 		
 		function generateLink(){
@@ -133,6 +154,20 @@ else{
 			
 			input.value = url;
 			input.select();
+		}
+		
+		function log(msg){
+			var log = document.getElementById("log"),
+				date = new Date();
+				timestamp = date.getHours()+":"+date.getMinutes()+":"+date.getSeconds(),
+				dims = getDimensions(log),
+				atBottom = dims.scroll.height-dims.scroll.top == dims.inner.height && dims.scroll.left == 0;
+			   
+			log.innerHTML += '<small style="color:#888;">'+timestamp+"</small>&nbsp; "+textToHTML(msg)+"<br>";
+			if(atBottom){	//user hasn't scrolled up or right
+				dims = getDimensions(log)
+				setScrollPosition(log, dims.scroll.height-dims.inner.height, 0);	//scroll down to reveal the new log entry
+			}
 		}
 		
 	</script>
