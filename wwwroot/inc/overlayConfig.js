@@ -3,8 +3,8 @@ var currentInstance, iframe;
 
 function initTemplates(templates){
 	
-    "use strict";
-    
+	"use strict";
+	
 	var i, sel_templates = $("#templates"), option, currentTemplate,
 		iTitle = $("#templateTitle")[0],
 		iPath = $("#templatePath")[0],
@@ -346,8 +346,8 @@ function initTemplates(templates){
 
 function initInstances(instances){
 	
-    "use strict";
-    
+	"use strict";
+	
 	var i, sel_instances = $("#instances"), option;
 	
 	iframe = $("#settings")[0];
