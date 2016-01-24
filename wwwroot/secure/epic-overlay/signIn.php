@@ -22,9 +22,9 @@ if($_SESSION['user_id']){
 	
 	<script>if(window !== window.top) window.top.location.assign("https://epicstreamman.com/secure/epic-overlay/signIn.php");</script>
 	
-    <meta name="google-signin-scope" content="profile email">
-    <meta name="google-signin-client_id" content="977450567667-btt3bsju6boeg0hdcqjl9n8dv5s2s1s7.apps.googleusercontent.com">
-    <script src="https://apis.google.com/js/platform.js" defer></script>
+	<meta name="google-signin-scope" content="profile email">
+	<meta name="google-signin-client_id" content="977450567667-btt3bsju6boeg0hdcqjl9n8dv5s2s1s7.apps.googleusercontent.com">
+	<script src="https://apis.google.com/js/platform.js" defer></script>
 	
 	<script>
 		function textToHTML(str){
@@ -73,8 +73,17 @@ if($_SESSION['user_id']){
 		}
 	</style>
 	
+	<!-- "Fork me on GitHub" CSS ribbon -->
+	<link rel="stylesheet" href="gh-fork-ribbon.css">
+	
 </head>
 <body>
+	
+	<div class="github-fork-ribbon-wrapper right">
+		<div class="github-fork-ribbon">
+			<a href="https://github.com/wizard04wsu/epic-overlay">Fork me on GitHub</a>
+		</div>
+	</div>
 	
 	<div id="title">
 		<h1>Epic Overlay <sup>beta</sup></h1>
