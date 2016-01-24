@@ -1,8 +1,8 @@
 <?php
-error_reporting(E_ALL);
-//ini_set('display_errors', 0);
+//error_reporting(E_ALL);
+//ini_set('display_errors', 1);
 
-header("Cache-Control: no-store, no-cache, max-age=0");
+header('Cache-Control: no-store, no-cache, max-age=0');
 header("Expires: -1");
 
 $template = 'twitchAlerts.php';

@@ -1,21 +1,26 @@
 <?php
-error_reporting(E_ALL);
-//ini_set('display_errors', 0);
+//error_reporting(E_ALL);
+//ini_set('display_errors', 1);
 
-header("Cache-Control: no-store, no-cache, max-age=0");
+header('Cache-Control: no-store, no-cache, max-age=0');
 header("Expires: -1");
 
 
 if(@$_POST['getDefaults']){
 	//respond with the default settings for this template
-	exit('{}');
+	exit('{"queue":[]}');
 }
 
 require '_getSettings_cfg.php';
 
+$greenScreenURL;
+
 if(!$errMsg){
 	
-	//
+	$greenScreenURL = "";
+	if(isset($settingsArr['greenScreen'])){
+		$greenScreenURL = $settingsArr['greenScreen'];
+	}
 	
 }
 
@@ -26,7 +31,7 @@ if(!$errMsg){
 	
 	<meta charset="UTF-8">
 	
-	<title>Epic Overlay: player configuration</title>
+	<title>Epic Overlay: On-demand Sample TwitchAlerts configuration</title>
 	
 	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
 	<script type="text/javascript" src="../inc/htmlEncode.js"></script>
@@ -71,7 +76,7 @@ if($errMsg){
 else{
 ?>
 	<script type="text/javascript">
-		/*** instanceTitle variable is required by overlayConfig.php ***/
+		/*** instanceTitle variable is required by dashboard.php ***/
 		var instanceTitle = <?php echo json_encode($title); ?>;
 		
 		var instance = <?php echo $instance; ?>,
@@ -83,30 +88,36 @@ else{
 			<div><label for="title">Title</label></div>
 			<div><input type="text" id="title" pattern=".+" value="<?php echo $title; ?>"></div>
 		</div>
+		<div>
+			<div><label for="green">URL of green screen <small style="color:#888;">(optional)</small></label></div>
+			<div><input type="url" id="green" value="<?php echo $greenScreenURL; ?>"></div>
+		</div>
 	</div>
 	
 	<p style="margin-bottom:0;">
-	<!-- save button must have id="save" so overlayConfig.php can find it -->
+	<!-- save button must have id="save" so dashboard.php can find it -->
 	<input type="submit" id="save" value="Save" disabled> <input type="button" id="cancel" value="Cancel">
 	</p>
 	
 	<script type="text/javascript">
-		var i_title, btn_save, btn_cancel;
+		var i_title, i_url, btn_save, btn_cancel;
 		
 		//add event handlers
 		(i_title = document.getElementById("title")).addEventListener("input", updateSaveBtn, false);
 		i_title.addEventListener("change", updateSaveBtn, false);	//for IE
+		(i_url = document.getElementById("green")).addEventListener("input", updateSaveBtn, false);
+		i_url.addEventListener("change", updateSaveBtn, false);	//for IE
 		
 		(btn_save = document.getElementById("save")).addEventListener("click", save, false);
-		(btn_cancel = document.getElementById("cancel")).addEventListener("click", cancel, false);;
+		(btn_cancel = document.getElementById("cancel")).addEventListener("click", cancel, false);
 		
 		function updateSaveBtn(){
 			
-			if(i_title.value == HTMLToText(instanceTitle)){
+			if(i_title.value == HTMLToText(instanceTitle) && i_url.value == "<?php echo $greenScreenURL; ?>"){
 				//all settings are the same as they were when the page loaded
 				btn_save.disabled = true;
 			}
-			else if(!i_title.validity.valid){
+			else if(!i_title.validity.valid || !i_url.validity.valid){
 				//a text box has an invalid value
 				btn_save.disabled = true;
 			}
@@ -119,7 +130,10 @@ else{
 		function save(){
 			var newSettings;
 			
-			newSettings = {};
+			newSettings = {
+				queue: settings.queue.slice(0),
+				greenScreen: i_url.value
+			};
 			
 			//disable the form fields
 			btn_save.disabled = true;
