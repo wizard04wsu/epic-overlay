@@ -1,4 +1,12 @@
 <?php
+
+session_start();
+
+if(!$_SESSION['user_id']){
+	header('Location: https://epicstreamman.com/secure/epic-overlay/signIn.php');
+	exit();
+}
+
 //declare variables (just for my sanity)
 $errMsg = '';
 $instance;

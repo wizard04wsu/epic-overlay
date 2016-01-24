@@ -20,6 +20,8 @@ if($_SESSION['user_id']){
 	
 	<title>Epic Overlay Sign-In</title>
 	
+	<script>if(window !== window.top) window.top.location.assign("https://epicstreamman.com/secure/epic-overlay/signIn.php");</script>
+	
     <meta name="google-signin-scope" content="profile email">
     <meta name="google-signin-client_id" content="977450567667-btt3bsju6boeg0hdcqjl9n8dv5s2s1s7.apps.googleusercontent.com">
     <script src="https://apis.google.com/js/platform.js" defer></script>
@@ -91,7 +93,7 @@ if($_SESSION['user_id']){
 				
 				GSI.className = "signed-in";
 				
-				epic.innerHTML = '<a href="javascript:epicSignIn()">Sign into the Epic Overlay dashboard.</a>';
+				epic.innerHTML = '<a href="javascript:epicSignIn()">Sign into Epic Overlay</a>';
 				
 			}
 			
@@ -107,13 +109,17 @@ if($_SESSION['user_id']){
 				xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 				xhr.onload = function() {
 					if(xhr.responseText == "success"){
-						/*console.log("yay!");*/
+						//success; go to the dashboard
 						window.location.assign("http://epicstreamman.com/epic-overlay/dashboard.php");
 					}
+					else if(xhr.responseText == "invalid"){
+						//user logged out of Google; reload the sign-in page
+						window.location.reload();
+					}
 					else{
-						/*console.log("boo...");*/
+						//some other error; let the user know
 						console.log('Token sign-in response: ' + xhr.responseText);
-						epic.innerHTML = "We're having trouble logging you into the Epic Overlay dashboard.<br>" +
+						epic.innerHTML = "We're having trouble signing you into Epic Overlay.<br>" +
 							'Please <a href="javascript:epicSignIn()">try again</a>.';
 					}
 				};
