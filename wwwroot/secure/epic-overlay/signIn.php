@@ -36,6 +36,25 @@ if($_SESSION['user_id']){
 		body {
 			font-family:Arial, Helvetica, sans-serif;
 		}
+		
+		#title {
+			text-align:center;
+			margin-bottom:2em;
+		}
+		#title h1 {
+			margin-bottom:0.1em;
+		}
+		#title sup {
+			color:red;
+			font-weight:bold;
+			font-style:italic;
+			font-size:70%;
+		}
+		#title p {
+			font-size:80%;
+			margin-top:0;
+		}
+		
 		#GoogleSignIn, #EpicSignIn {
 			display:table;
 			margin:auto;
@@ -57,9 +76,9 @@ if($_SESSION['user_id']){
 </head>
 <body>
 	
-	<div style="text-align:center; margin-bottom:2em;">
-		<h1 style="margin-bottom:0.1em;">Epic Overlay</h1>
-		<p style="font-size:80%; margin-top:0;">HTML overlays for use in the Open Broadcaster Software CLR browser</p>
+	<div id="title">
+		<h1>Epic Overlay <sup>beta</sup></h1>
+		<p>HTML overlays for use in the Open Broadcaster Software CLR browser</p>
 	</div>
 	
 	<div id="GoogleSignIn">
