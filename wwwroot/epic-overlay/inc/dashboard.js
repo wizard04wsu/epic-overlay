@@ -9,7 +9,8 @@ function initTemplates(templates){
 		iTitle = $("#templateTitle")[0],
 		iPath = $("#templatePath")[0],
 		iConfig = $("#templateConfig")[0],
-		sel_instances = $("#instances");
+		sel_instances = $("#instances"),
+		userIsAdmin = !!iTitle;
 	
 	if(!sel_templates || !templates) return;
 	
@@ -27,26 +28,31 @@ function initTemplates(templates){
 	sel_templates.on("change", templateChange);
 	templateChange();
 	
-	//event handlers for the buttons
-	$("#templateRegister").on("click", registerTemplate);
-	$("#templateRemove").on("click", removeTemplate);
-	$("#templateSave").on("click", saveTemplate);
-	$("#templateCancel").on("click", cancelTemplate);
+	if(userIsAdmin){
+		
+		//event handlers for the buttons
+		$("#templateRegister").on("click", registerTemplate);
+		$("#templateRemove").on("click", removeTemplate);
+		$("#templateSave").on("click", saveTemplate);
+		$("#templateCancel").on("click", cancelTemplate);
+		
+		//event handlers for changes to the text fields
+		iTitle.addEventListener("input", updateSaveBtn, false);
+		iTitle.addEventListener("change", updateSaveBtn, false);	//for IE
+		iPath.addEventListener("input", updateSaveBtn, false);
+		iPath.addEventListener("change", updateSaveBtn, false);	//for IE
+		iConfig.addEventListener("input", updateSaveBtn, false);
+		iConfig.addEventListener("change", updateSaveBtn, false);	//for IE
+		updateSaveBtn();
+		
+	}
 	$("#instanceCreate").on("click", createInstance);
-	
-	//event handlers for changes to the text fields
-	iTitle.addEventListener("input", updateSaveBtn, false);
-	iTitle.addEventListener("change", updateSaveBtn, false);	//for IE
-	iPath.addEventListener("input", updateSaveBtn, false);
-	iPath.addEventListener("change", updateSaveBtn, false);	//for IE
-	iConfig.addEventListener("input", updateSaveBtn, false);
-	iConfig.addEventListener("change", updateSaveBtn, false);	//for IE
-	updateSaveBtn();
 	
 	function templateChange(){
 		currentTemplate = $("#templates option:selected")[0];
 		if(currentTemplate){	//a template is selected
 			currentTemplate = currentTemplate.template;
+			if(!userIsAdmin) return;
 			//populate text fields
 			$("#templateTitle")[0].value = currentTemplate.title;
 			$("#templatePath")[0].value = currentTemplate.path;
@@ -55,6 +61,7 @@ function initTemplates(templates){
 			$("#templateRemove")[0].disabled = $("#instanceCreate")[0].disabled = false;
 		}
 		else{	//no template selected (a new template is being registered)
+			if(!userIsAdmin) return;
 			//clear text fields
 			$("#templateTitle")[0].value = $("#templatePath")[0].value = $("#templateConfig")[0].value = "";
 			//disable buttons
@@ -274,7 +281,7 @@ function initTemplates(templates){
 			
 			//have the user input a title
 			title = prompt("Please enter the title.");
-			while(title.trim() === ""){
+			while(title !== null && title.trim() === ""){
 				title = prompt("The title cannot be empty.\n\nPlease enter the title.");
 			}
 			if(title !== null){	//user didn't click Cancel
@@ -301,8 +308,14 @@ function initTemplates(templates){
 						return;
 					}
 					
-					//get the new instance ID
-					id = 1*JSON.parse(content);
+					try{
+						//get the new instance ID
+						id = 1*JSON.parse(content);
+					}
+					catch(e){
+						console.log(content);
+						alert("Server error. Response logged in the console.");
+					}
 					
 					if(id <= 0 || id !== Math.floor(id)){	//invalid ID
 						alert("Invalid instance ID: "+id);
@@ -385,8 +398,11 @@ function initInstances(instances){
 	function updateTitle(){
 		//when the settings page loads, get the title (from the instanceTitle variable in the settings page) and update the option in the instances list
 		 
-		var title = iframe.contentWindow.instanceTitle.trim(),
+		var title = iframe.contentWindow.instanceTitle,
 			option = $("#instances option:selected")[0];
+		
+		if(!title) return;
+		title = title.trim();
 		
 		if(title !== currentInstance.title){	//the title has changed
 			//update the title in the instances list

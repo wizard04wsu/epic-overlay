@@ -1,6 +1,6 @@
 <?php
-//error_reporting(E_ALL);
-//ini_set('display_errors', 1);
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 
 session_start();
 
@@ -17,6 +17,7 @@ $errMsg = '';
 /*$dbPath;*/ $db; $sql; $rst;
 $templateArr; $templateJson;
 $instanceArr; $instanceJson;
+$admin = false;
 
 
 //connect to the database
@@ -27,6 +28,13 @@ if(!file_exists($dbPath)){
 else{
 	$db = new COM('ADODB.Connection');
 	$db->Open("Provider=Microsoft.ACE.OLEDB.12.0; Data Source=$dbPath");
+	
+	//is the user an admin?
+	$sql = 'SELECT * FROM [User] WHERE ID = '.$_SESSION['user_id'].' AND Role.Value = "Administrator"';
+	$rst = $db->Execute($sql);
+	if(!$rst->EOF){
+		$admin = true;
+	}
 }
 	
 ?><!DOCTYPE html>
@@ -36,7 +44,7 @@ else{
 	
 	<meta charset="UTF-8">
 	
-	<title>Epic Overlay Configuration</title>
+	<title>Epic Overlay Dashboard</title>
 	
 	<link rel="stylesheet" media="all" href="inc/dashboard.css">
 	
@@ -72,7 +80,7 @@ else{
 	else{
 ?>
 	<div style="text-align:center; margin-bottom:2em;">
-		<h1 style="margin-bottom:0.1em;">Epic Overlay Configuration</h1>
+		<h1 style="margin-bottom:0.1em;">Epic Overlay Dashboard</h1>
 		<p style="font-size:80%; margin-top:0;">HTML overlays for use in the Open Broadcaster Software CLR browser</p>
 	</div>
 	
@@ -95,6 +103,9 @@ else{
 ?>
 		</select>
 		</p>
+<?php
+if($admin){
+?>
 		<p>
 			<input type="button" id="templateRegister" value="Register a new template">
 			<input type="button" id="templateRemove" value="Remove" style="float:right;">
@@ -120,6 +131,9 @@ else{
 			<input type="button" id="templateCancel" value="Cancel">
 			</p>
 		</div>
+<?php
+}
+?>
 		<p style="text-align:center;">
 		
 		<input type="button" id="instanceCreate" value="Create an instance">
