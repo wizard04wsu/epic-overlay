@@ -70,7 +70,7 @@ else{
 	$listPatterns = array('playlist'=>" *[0-9a-zA-Z_-]+ *", 'video_list'=>" *[0-9a-zA-Z_-]+(, *[0-9a-zA-Z_-]+)* *", 'user_uploads'=>" *[0-9a-zA-Z_'-]*(\.[0-9a-zA-Z_'-]+)*\.? *", 'search'=>"");
 ?>
 	<script type="text/javascript">
-		/*** instanceTitle variable is required by overlayConfig.php ***/
+		/*** instanceTitle variable is required by dashboard.php ***/
 		var instanceTitle = <?php echo json_encode($title); ?>;
 		
 		var instance = <?php echo $instance; ?>,
@@ -109,7 +109,7 @@ else{
 	</p>
 	
 	<p style="margin-bottom:0;">
-	<!-- save button must have id="save" so overlayConfig.php can find it -->
+	<!-- save button must have id="save" so dashboard.php can find it -->
 	<input type="submit" id="save" value="Save" disabled> <input type="button" id="cancel" value="Cancel">
 	</p>
 	

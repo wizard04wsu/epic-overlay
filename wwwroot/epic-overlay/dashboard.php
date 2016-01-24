@@ -31,13 +31,13 @@ else{
 	
 	<title>Epic Overlay Configuration</title>
 	
-	<link rel="stylesheet" media="all" href="inc/overlayConfig.css">
+	<link rel="stylesheet" media="all" href="inc/dashboard.css">
 	
 	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
 	<script type="text/javascript" src="inc/jquery.sortElements.js"></script>	<!-- https://github.com/padolsey-archive/jquery.fn/tree/master/sortElements -->
 	<script type="text/javascript" src="inc/htmlEncode.js"></script>
 	<script type="text/javascript" src="inc/multiColumnSelect.js"></script>
-	<script type="text/javascript" src="inc/overlayConfig.js"></script>
+	<script type="text/javascript" src="inc/dashboard.js"></script>
 	
 </head>
 <body>

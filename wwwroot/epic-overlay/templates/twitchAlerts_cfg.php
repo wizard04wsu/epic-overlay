@@ -76,7 +76,7 @@ if($errMsg){
 else{
 ?>
 	<script type="text/javascript">
-		/*** instanceTitle variable is required by overlayConfig.php ***/
+		/*** instanceTitle variable is required by dashboard.php ***/
 		var instanceTitle = <?php echo json_encode($title); ?>;
 		
 		var instance = <?php echo $instance; ?>,
@@ -95,7 +95,7 @@ else{
 	</div>
 	
 	<p style="margin-bottom:0;">
-	<!-- save button must have id="save" so overlayConfig.php can find it -->
+	<!-- save button must have id="save" so dashboard.php can find it -->
 	<input type="submit" id="save" value="Save" disabled> <input type="button" id="cancel" value="Cancel">
 	</p>
 	

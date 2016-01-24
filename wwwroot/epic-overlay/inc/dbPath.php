@@ -1,3 +1,3 @@
 <?php
-$dbPath = realpath($_SERVER['DOCUMENT_ROOT'].'/../data/overlayConfig.accdb');
+$dbPath = realpath($_SERVER['DOCUMENT_ROOT'].'/../data/epic-overlay.accdb');
 ?>
