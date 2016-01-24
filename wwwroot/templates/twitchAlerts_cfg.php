@@ -109,7 +109,7 @@ else{
 		i_url.addEventListener("change", updateSaveBtn, false);	//for IE
 		
 		(btn_save = document.getElementById("save")).addEventListener("click", save, false);
-		(btn_cancel = document.getElementById("cancel")).addEventListener("click", cancel, false);;
+		(btn_cancel = document.getElementById("cancel")).addEventListener("click", cancel, false);
 		
 		function updateSaveBtn(){
 			
@@ -131,6 +131,7 @@ else{
 			var newSettings;
 			
 			newSettings = {
+				queue: settings.queue.slice(0),
 				greenScreen: i_url.value
 			};
 			
