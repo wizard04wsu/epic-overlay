@@ -2,6 +2,13 @@
 //error_reporting(E_ALL);
 //ini_set('display_errors', 1);
 
+session_start();
+
+if(!$_SESSION['user_id']){
+	header('Location: https://epicstreamman.com/secure/epic-overlay/signIn.php');
+	exit();
+}
+
 header('Cache-Control: no-store, no-cache, max-age=0');
 header('Expires: -1');
 
@@ -39,8 +46,25 @@ else{
 	<script type="text/javascript" src="inc/multiColumnSelect.js"></script>
 	<script type="text/javascript" src="inc/dashboard.js"></script>
 	
+    <meta name="google-signin-scope" content="profile email">
+    <meta name="google-signin-client_id" content="977450567667-btt3bsju6boeg0hdcqjl9n8dv5s2s1s7.apps.googleusercontent.com">
+    <script src="https://apis.google.com/js/platform.js" defer></script>
+	
 </head>
 <body>
+	
+	<div class="g-signin2" style="display:none;"></div>
+	<a href="#" onclick="signOut();">Sign out</a>
+	<script>
+		function signOut() {
+			var auth2 = gapi.auth2.getAuthInstance();
+			auth2.signOut().then(function () {
+				console.log('User signed out.');
+				window.location.replace("https://epicstreamman.com/epic-overlay/gsi/signOut.php");
+			});
+		}
+	</script>
+	
 <?php
 	if($errMsg){
 		echo $errMsg;
@@ -110,7 +134,7 @@ else{
 <?php
 		//get the list of instances from the database
 		$instanceArr = array();
-		$sql = "SELECT Instance.ID, Instance.Title, Template.ID AS TemplateID, Template.Title AS TemplateTitle, Template.Path, Template.Config FROM Instance INNER JOIN Template ON Instance.Template = Template.ID ORDER BY Instance.Title, Template.Title";
+		$sql = "SELECT Instance.ID, Instance.Title, Template.ID AS TemplateID, Template.Title AS TemplateTitle, Template.Path, Template.Config FROM Instance INNER JOIN Template ON Instance.Template = Template.ID WHERE Instance.UserID = {$_SESSION['user_id']} ORDER BY Instance.Title, Template.Title";
 		$rst = $db->Execute($sql);
 		while(!$rst->EOF){
 			array_push($instanceArr, array('id'=>$rst['ID']->Value, 'title'=>''.$rst['Title'], 'template'=>array('id'=>$rst['TemplateID']->Value, 'title'=>''.$rst['TemplateTitle'], 'path'=>''.$rst['Path'], 'config'=>''.$rst['Config'])));
