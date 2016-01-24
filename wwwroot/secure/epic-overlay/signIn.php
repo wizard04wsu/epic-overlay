@@ -24,9 +24,31 @@ if($_SESSION['user_id']){
     <meta name="google-signin-client_id" content="977450567667-btt3bsju6boeg0hdcqjl9n8dv5s2s1s7.apps.googleusercontent.com">
     <script src="https://apis.google.com/js/platform.js" defer></script>
 	
+	<script>
+		function textToHTML(str){
+			return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;")/*.replace(/'/g, "&#39;")*/.replace(/'/g, "&apos;");	//PHP uses &apos; instead of &#39;
+		}
+	</script>
+	
 	<style type="text/css" media="all">
 		body {
 			font-family:Arial, Helvetica, sans-serif;
+		}
+		#GoogleSignIn, #EpicSignIn {
+			display:table;
+			margin:auto;
+			margin-bottom:2em;
+			text-align:center;
+		}
+		#GoogleSignIn.signed-in #GSI_button {
+			display:none;
+		}
+		#GSI_user .pic {
+			display:inline-block;
+			width:32px;
+			height:32px;
+			border-radius:50%;
+			vertical-align:sub;
 		}
 	</style>
 	
@@ -38,38 +60,71 @@ if($_SESSION['user_id']){
 		<p style="font-size:80%; margin-top:0;">HTML overlays for use in the Open Broadcaster Software CLR browser</p>
 	</div>
 	
-	<div class="g-signin2" data-onsuccess="onSignIn" data-theme="dark" style="margin:auto; display:table;"></div>
+	<div id="GoogleSignIn">
+		<div id="GSI_button" class="g-signin2" data-onsuccess="onGoogleSignIn" data-theme="dark"></div>
+		<div id="GSI_user"></div>
+	</div>
+	
+	<div id="EpicSignIn"></div>
+	
 	<script>
-		function onSignIn(googleUser) {
-			// Useful data for your client-side scripts:
-			var profile = googleUser.getBasicProfile();
-			console.log("ID: " + profile.getId()); // Don't send this directly to your server!
-			console.log("Name: " + profile.getName());
-			console.log("Image URL: " + profile.getImageUrl());
-			console.log("Email: " + profile.getEmail());
+		(function (){
 			
-			// The ID token you need to pass to your backend:
-			var id_token = googleUser.getAuthResponse().id_token;
-			console.log("ID Token: " + id_token);
+			var GSI = document.getElementById("GoogleSignIn"),
+				googleUser,
+				userInfo = document.getElementById("GSI_user"),
+				epic = document.getElementById("EpicSignIn");
 			
-			//send the ID token to your server with an HTTPS POST request
-			var xhr = new XMLHttpRequest();
-			xhr.open('POST', 'https://epicstreamman.com/secure/epic-overlay/gsi/tokensignin.php');
-			xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-			xhr.onload = function() {
-				console.log('Token sign-in response: ' + xhr.responseText);
-				if(xhr.responseText == "success"){
-					console.log("yay!");
-					window.location.assign("http://epicstreamman.com/epic-overlay/dashboard.php");
-				}
-				else{
-					console.log("boo...");
-					//...
-				}
-			};
-			xhr.send('id_token=' + id_token);
-			//... show something while waiting for a response from the server
-		};
+			this.onGoogleSignIn = function (user) {
+				
+				googleUser = user;
+				
+				// Useful data for your client-side scripts:
+				var profile = googleUser.getBasicProfile();
+				/*console.log("ID: " + profile.getId()); // Don't send this directly to your server!
+				console.log("Name: " + profile.getName());
+				console.log("Image URL: " + profile.getImageUrl());
+				console.log("Email: " + profile.getEmail());*/
+				
+				userInfo.innerHTML = "You are signed into Google as<br>" +
+					'<span class="pic" style="background-image:url('+ (profile.getImageUrl().replace(/\/s96-c\/photo.jpg$/, "/s32-c/photo.jpg")) + ')"></span> '+textToHTML(profile.getName());
+				
+				GSI.className = "signed-in";
+				
+				epic.innerHTML = '<a href="javascript:epicSignIn()">Sign into the Epic Overlay dashboard.</a>';
+				
+			}
+			
+			this.epicSignIn = function (){
+				
+				// The ID token you need to pass to your backend:
+				var id_token = googleUser.getAuthResponse().id_token;
+				/*console.log("ID Token: " + id_token);*/
+				
+				//send the ID token to your server with an HTTPS POST request
+				var xhr = new XMLHttpRequest();
+				xhr.open('POST', 'https://epicstreamman.com/secure/epic-overlay/gsi/tokensignin.php');
+				xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+				xhr.onload = function() {
+					if(xhr.responseText == "success"){
+						/*console.log("yay!");*/
+						window.location.assign("http://epicstreamman.com/epic-overlay/dashboard.php");
+					}
+					else{
+						/*console.log("boo...");*/
+						console.log('Token sign-in response: ' + xhr.responseText);
+						epic.innerHTML = "We're having trouble logging you into the Epic Overlay dashboard.<br>" +
+							'Please <a href="javascript:epicSignIn()">try again</a>.';
+					}
+				};
+				xhr.send('id_token=' + id_token);
+				
+				//show something to the user while waiting for a response from the server
+				epic.innerHTML = "Please wait while you are signed into the Epic Overlay dashboard...";
+				
+			}
+			
+	   })();
 	</script>
 	
 </body>

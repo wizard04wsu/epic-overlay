@@ -28,7 +28,7 @@ $_SESSION['user_id'] = NULL;
 if(!isset($_POST['id_token'])){
 	//no ID token given
 	//...
-	echo 'no ID token given';
+	echo 'No ID token given.';
 	exit();
 }
 
@@ -65,20 +65,20 @@ $response = validate_token($id_token);
 if(!$response){
 	//no response
 	//...
-	echo 'no response';
+	echo 'No response from Google tokeninfo endpoint.';
 	exit();
 }
 $token_claims = json_decode($response, true);
 if(!isset($token_claims['aud'])){
 	//invalid ID token
 	//...
-	echo 'invalid ID token';
+	echo 'Invalid ID token.';
 	exit();
 }
 if($token_claims['aud'] != $client_id){
 	//token is not intended for this client
 	//...
-	echo 'token is not intended for this client';
+	echo 'ID token is not intended for this client.';
 	exit();
 }
 
