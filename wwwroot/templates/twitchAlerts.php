@@ -1,8 +1,8 @@
 <?php
-error_reporting(E_ALL);
-//ini_set('display_errors', 0);
+//error_reporting(E_ALL);
+//ini_set('display_errors', 1);
 
-header("Cache-Control: no-store, no-cache, max-age=0");
+header('Cache-Control: no-store, no-cache, max-age=0');
 header("Expires: -1");
 
 
@@ -78,6 +78,11 @@ if($settingsArr['greenScreen'] != ''){
 	
 	Log:
 	<div id="log"></div>
+	<button id="clearLog">Clear Log</button>
+	
+	<p>
+	<button id="clearQueue">Clear Alert Queue</button>
+	</p>
 	
 	<script type="text/javascript">
 		
@@ -88,6 +93,9 @@ if($settingsArr['greenScreen'] != ''){
 		
 		testBtn.addEventListener("click", function (evt){ sendAlert(); }, false);
 		genBtn.addEventListener("click", generateLink, false);
+		
+		document.getElementById("clearLog").addEventListener("click", clearLog, false);
+		document.getElementById("clearQueue").addEventListener("click", clearQueue, false);
 		
 		if(settings.queue.length){
 			sendQueuedAlert();
@@ -168,6 +176,34 @@ if($settingsArr['greenScreen'] != ''){
 				dims = getDimensions(log)
 				setScrollPosition(log, dims.scroll.height-dims.inner.height, 0);	//scroll down to reveal the new log entry
 			}
+		}
+		
+		function clearLog(evt){
+			document.getElementById("log").innerHTML = "";
+		}
+		
+		function clearQueue(evt){
+			
+			//use jQuery to remove this alert from the queue
+			$.ajax({
+				url: "twitchAlerts_clear.php",
+				method: 'GET',
+				data: {
+					instance: <?php echo $instance; ?>
+				}
+			}).done(function(content, message, xhr) {
+				if(content == "success"){
+					log("Alert queue has been cleared.");
+				}
+				else{
+					//display the error message
+					log("Failed to clear the queue: "+content);
+				}
+			}).fail(function(xhr, message, errorThrown) {
+				//display a generic error message
+				log("Failed to clear the queue: "+message+" : "+errorThrown);
+			});
+			
 		}
 		
 	</script>
